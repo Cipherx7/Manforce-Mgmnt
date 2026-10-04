@@ -1,0 +1,5 @@
+@import "tailwindcss";
+
+@variant dark (&:where(.dark, .dark *));
+
+/* Add any custom tailwind layers here */
