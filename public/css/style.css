@@ -2256,25 +2256,44 @@ select option {
   text-decoration: underline;
 }
 
-/* Availability & Languages Column */
-.res-col-avail {
+/* Manager / Zone Column */
+.res-col-manager {
   min-width: 0;
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  align-items: center;
 }
 
-.res-avail-text {
-  font-size: 0.74rem;
-  font-weight: 500;
+.res-mgr-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  font-size: 0.73rem;
+  font-weight: 600;
   color: var(--text-primary);
-  white-space: nowrap;
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.res-lang-text {
-  font-size: 0.7rem;
+.dark .res-mgr-tag {
+  background: rgba(99, 102, 241, 0.16);
+  border-color: rgba(99, 102, 241, 0.32);
+  color: #e0e7ff;
+}
+
+.res-mgr-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.res-zone-tag-sub {
+  font-size: 0.72rem;
   color: var(--text-muted);
   white-space: nowrap;
   overflow: hidden;
@@ -5783,13 +5802,76 @@ td.menu-open,
   font-weight: 700;
 }
 
-.resource-select-cb {
-  width: 17px;
-  height: 17px;
-  border-radius: 4px;
+/* ─── Modern Premium Custom Checkbox UI ──────────────────────── */
+.resource-select-cb,
+.multi-filter-item input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 5px;
+  background-color: #ffffff;
   cursor: pointer;
-  accent-color: var(--accent);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
   vertical-align: middle;
+  position: relative;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.resource-select-cb:hover,
+.multi-filter-item input[type="checkbox"]:hover {
+  border-color: var(--accent);
+  background-color: rgba(99, 102, 241, 0.04);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.resource-select-cb:checked,
+.multi-filter-item input[type="checkbox"]:checked {
+  background-color: var(--accent);
+  border-color: var(--accent);
+  box-shadow: 0 2px 6px rgba(99, 102, 241, 0.35);
+}
+
+.resource-select-cb:checked::after,
+.multi-filter-item input[type="checkbox"]:checked::after {
+  content: '';
+  display: block;
+  width: 4px;
+  height: 8px;
+  border: solid #ffffff;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg) translate(-0.5px, -0.5px);
+}
+
+.dark .resource-select-cb,
+.dark .multi-filter-item input[type="checkbox"] {
+  border-color: rgba(255, 255, 255, 0.22);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.dark .resource-select-cb:hover,
+.dark .multi-filter-item input[type="checkbox"]:hover {
+  border-color: #818cf8;
+  background-color: rgba(99, 102, 241, 0.14);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+}
+
+.dark .resource-select-cb:checked,
+.dark .multi-filter-item input[type="checkbox"]:checked {
+  background-color: #6366f1;
+  border-color: #6366f1;
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+}
+
+.dark .resource-select-cb:checked::after,
+.dark .multi-filter-item input[type="checkbox"]:checked::after {
+  border-color: #ffffff;
 }
 
 .selected-resource {

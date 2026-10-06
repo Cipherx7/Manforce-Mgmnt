@@ -1720,9 +1720,17 @@ function renderResourceOperationsView() {
         <span style="font-weight:600;font-size:0.88rem;color:var(--text-primary)">
           ${state.selectedResourceIds.size} personnel selected
         </span>
-        <button class="btn btn-sm btn-primary" onclick="openBulkAssignModal()" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;box-shadow:0 2px 8px rgba(99,102,241,0.4)">
-          <span>⚡</span> Bulk Deploy to Project
-        </button>
+        ${auth.can('edit_assignments') ? `
+          <button class="btn btn-sm btn-primary" onclick="openBulkAssignModal()" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;box-shadow:0 2px 8px rgba(99,102,241,0.4)">
+            <span>⚡</span> Bulk Deploy
+          </button>
+        ` : ''}
+        ${auth.can('edit_resources') ? `
+          <button class="btn btn-sm btn-danger" onclick="bulkDeleteSelectedResources()" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+            <span>Delete Selected (${state.selectedResourceIds.size})</span>
+          </button>
+        ` : ''}
         <button class="btn btn-sm btn-secondary" onclick="clearResourceSelection()" style="padding:6px 10px">
           ✕ Clear
         </button>
@@ -1806,13 +1814,18 @@ function renderOpsRowList(workers) {
               ` : '—'}
             </div>
 
-            <!-- Col 4: Languages Spoken ONLY (No availability schedule text) -->
-            <div class="res-col-avail">
-              ${r.languages ? `
-                <div class="res-lang-text" title="${escapeHtml(r.languages)}">
-                  🗣️ ${escapeHtml(r.languages)}
+            <!-- Col 4: Manager Name in Lead view / Clean Zone in Manager view (No languages!) -->
+            <div class="res-col-manager">
+              ${auth.isLead() ? `
+                <div class="res-mgr-tag" title="Manager: ${escapeHtml(r.manager_name || 'Unassigned Pool')}">
+                  <span style="font-size:0.75rem">👔</span>
+                  <span class="res-mgr-name">${escapeHtml(r.manager_name || 'Unassigned')}</span>
                 </div>
-              ` : '<span class="text-xs text-muted">—</span>'}
+              ` : `
+                <div class="res-zone-tag-sub text-xs text-muted" title="Zone">
+                  📍 ${escapeHtml(r.zone || 'Pune')}
+                </div>
+              `}
             </div>
 
             <!-- Col 5: Status / Deployment (NO Available text tag, only dot!) -->
@@ -2030,10 +2043,12 @@ function renderOpsCardGrid(workers) {
                 <span class="res-card-attr-label">Height</span>
                 <span class="res-card-attr-val">📏 ${escapeHtml(r.height && r.height.toLowerCase() !== 'na' ? r.height : '—')}</span>
               </div>
-              <div class="res-card-attr-item" style="grid-column: span 2">
-                <span class="res-card-attr-label">Languages</span>
-                <span class="res-card-attr-val" title="${escapeHtml(r.languages || '—')}">🗣️ ${escapeHtml(r.languages || '—')}</span>
-              </div>
+              ${auth.isLead() ? `
+                <div class="res-card-attr-item" style="grid-column: span 2">
+                  <span class="res-card-attr-label">Manager</span>
+                  <span class="res-card-attr-val" style="font-weight:600;color:var(--text-primary)" title="Manager: ${escapeHtml(r.manager_name || 'Unassigned')}">👔 ${escapeHtml(r.manager_name || 'Unassigned')}</span>
+                </div>
+              ` : ''}
               <div class="res-card-attr-item" style="grid-column: span 2">
                 <span class="res-card-attr-label">Availability</span>
                 <span class="res-card-attr-val" title="${escapeHtml(r.availability || 'Flexible')}">🗓️ ${escapeHtml(r.availability || 'On notice')}</span>
@@ -2135,21 +2150,41 @@ function toggleResourceActionMenu(event, resourceId) {
 
 async function deleteResourceConfirm(resourceId, resourceName) {
   if (!auth.can('edit_resources')) {
-    toast('Access restricted. You do not have permission to delete resources.', 'error');
+    toast('Access restricted: You do not have permission to delete resources.', 'error');
     return;
   }
   if (!confirm(`Are you sure you want to permanently delete "${resourceName}"? This cannot be undone.`)) return;
   try {
     await api(`/resources/${resourceId}`, 'DELETE');
     toast(`Worker "${resourceName}" removed successfully.`, 'success');
+    state.selectedResourceIds.delete(resourceId);
     loadResources();
   } catch (err) {
-    // 409 = deployed or has assignment history — surface a clear, actionable message
-    if (err.status === 409 || (err.message && err.message.toLowerCase().includes('cannot delete'))) {
-      toast(`Cannot delete ${resourceName} — they are deployed or have project history. Set status to Unavailable instead.`, 'error');
-    } else {
-      toast(err.message || 'Failed to delete resource.', 'error');
-    }
+    toast(err.message || 'Failed to delete resource.', 'error');
+  }
+}
+
+async function bulkDeleteSelectedResources() {
+  if (!auth.can('edit_resources')) {
+    toast('Access restricted: You do not have permission to delete resources.', 'error');
+    return;
+  }
+  const count = state.selectedResourceIds.size;
+  if (!count) {
+    toast('No personnel selected for deletion.', 'info');
+    return;
+  }
+  if (!confirm(`Are you sure you want to permanently delete these ${count} selected personnel? This cannot be undone.`)) {
+    return;
+  }
+  try {
+    const ids = Array.from(state.selectedResourceIds);
+    const res = await api('/resources/bulk-delete', 'POST', { ids });
+    toast(res.message || `Successfully removed ${count} personnel.`, 'success');
+    state.selectedResourceIds.clear();
+    loadResources();
+  } catch (err) {
+    toast(err.message || 'Failed to delete selected resources.', 'error');
   }
 }
 
@@ -4738,6 +4773,10 @@ async function viewResource(id) {
       <div class="flex justify-between items-center" style="border-top:1px solid var(--border);padding-top:16px">
         ${auth.can('edit_resources') ? `<button class="btn btn-secondary" onclick="closeModal('detail-modal');openResourceModal(${r.id})">Edit Profile</button>` : '<div></div>'}
         <div class="flex gap-2">
+          ${auth.can('edit_resources') ? `
+            <button class="btn btn-secondary" onclick="closeModal('detail-modal');openResourceModal(${r.id})">Edit</button>
+            <button class="btn btn-danger" onclick="closeModal('detail-modal');deleteResourceConfirm(${r.id}, '${escapeHtml(r.name).replace(/'/g, "\\'")}')">Delete</button>
+          ` : ''}
           ${auth.can('edit_assignments') ? (isAvail ? `
             <button class="btn btn-primary" onclick="closeModal('detail-modal');openAssignModal(${r.id})">Deploy to Project</button>
           ` : isDeployed ? `

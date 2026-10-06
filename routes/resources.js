@@ -631,31 +631,84 @@ router.put('/:id', requirePermission('edit_resources'), async (req, res) => {
   }
 });
 
-// DELETE resource
+// POST bulk-delete resources
+router.post('/bulk-delete', requirePermission('edit_resources'), async (req, res) => {
+  try {
+    const { ids } = req.body;
+    if (!ids || !Array.isArray(ids) || !ids.length) {
+      return res.status(400).json({ success: false, error: 'No resource IDs provided for deletion.' });
+    }
+
+    let targetIds = ids.map(id => parseInt(id, 10)).filter(id => !isNaN(id) && id > 0);
+    if (!targetIds.length) {
+      return res.status(400).json({ success: false, error: 'Invalid resource IDs provided.' });
+    }
+
+    // If manager, scope to only resources assigned to this manager
+    if (!isLead(req.user)) {
+      if (!req.user.manager_id) {
+        return res.status(403).json({ success: false, error: 'Manager account is not linked to an operational profile.' });
+      }
+      const inPlaceholders = targetIds.map(() => '?').join(',');
+      const [allowed] = await pool.query(
+        `SELECT id FROM resources WHERE id IN (${inPlaceholders}) AND reporting_manager_id = ?`,
+        [...targetIds, req.user.manager_id]
+      );
+      targetIds = allowed.map(r => r.id);
+      if (!targetIds.length) {
+        return res.status(403).json({ success: false, error: 'Access denied: You can only remove your own resources.' });
+      }
+    }
+
+    const inClause = targetIds.map(() => '?').join(',');
+    // Explicitly delete related records to guarantee deletion never fails on constraints
+    await pool.query(`DELETE FROM project_assignments WHERE resource_id IN (${inClause})`, targetIds);
+    await pool.query(`DELETE FROM nominations WHERE resource_id IN (${inClause})`, targetIds);
+    await pool.query(`DELETE FROM attendance WHERE resource_id IN (${inClause})`, targetIds);
+    await pool.query(`DELETE FROM availability_log WHERE resource_id IN (${inClause})`, targetIds);
+    await pool.query(`DELETE FROM payments WHERE resource_id IN (${inClause})`, targetIds);
+    const [delResult] = await pool.query(`DELETE FROM resources WHERE id IN (${inClause})`, targetIds);
+
+    const affected = delResult.affectedRows || targetIds.length;
+    res.json({ success: true, count: affected, message: `Successfully deleted ${affected} resource(s).` });
+  } catch (err) {
+    console.error('Bulk delete error:', err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// DELETE single resource
 router.delete('/:id', requirePermission('edit_resources'), async (req, res) => {
   try {
-    // Check if staff has ever been assigned to a project (active or historical)
-    const [assignments] = await pool.query(
-      `SELECT id FROM project_assignments WHERE resource_id = ? LIMIT 1`, [req.params.id]
-    );
-    if (assignments.length) {
-      return res.status(409).json({
-        success: false,
-        error: 'Cannot delete staff member who is deployed or has assignment history on a project. Mark as Unavailable instead.'
-      });
+    const resourceId = parseInt(req.params.id, 10);
+    if (isNaN(resourceId)) {
+      return res.status(400).json({ success: false, error: 'Invalid resource ID.' });
     }
 
-    const [current] = await pool.query(`SELECT current_project_id FROM resources WHERE id = ?`, [req.params.id]);
-    if (current.length && current[0].current_project_id) {
-      return res.status(409).json({
-        success: false,
-        error: 'Cannot delete staff member who is currently assigned to a project.'
-      });
+    // If manager, ensure the resource belongs to this manager
+    if (!isLead(req.user)) {
+      const [owner] = await pool.query(
+        `SELECT id, reporting_manager_id FROM resources WHERE id = ?`, [resourceId]
+      );
+      if (!owner.length) {
+        return res.status(404).json({ success: false, error: 'Resource not found.' });
+      }
+      if (String(owner[0].reporting_manager_id) !== String(req.user.manager_id)) {
+        return res.status(403).json({ success: false, error: 'Access denied: You can only delete your own resources.' });
+      }
     }
 
-    await pool.query(`DELETE FROM resources WHERE id = ?`, [req.params.id]);
-    res.json({ success: true, message: 'Resource deleted' });
+    // Clean up related records
+    await pool.query(`DELETE FROM project_assignments WHERE resource_id = ?`, [resourceId]);
+    await pool.query(`DELETE FROM nominations WHERE resource_id = ?`, [resourceId]);
+    await pool.query(`DELETE FROM attendance WHERE resource_id = ?`, [resourceId]);
+    await pool.query(`DELETE FROM availability_log WHERE resource_id = ?`, [resourceId]);
+    await pool.query(`DELETE FROM payments WHERE resource_id = ?`, [resourceId]);
+    await pool.query(`DELETE FROM resources WHERE id = ?`, [resourceId]);
+
+    res.json({ success: true, message: 'Resource removed successfully.' });
   } catch (err) {
+    console.error('Delete resource error:', err);
     res.status(500).json({ success: false, error: err.message });
   }
 });
