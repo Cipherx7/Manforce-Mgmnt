@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/tailwind.css">
-  <link rel="stylesheet" href="/css/style.css?v=3.9">
+  <link rel="stylesheet" href="/css/style.css?v=3.10">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎭</text></svg>">
   <script>
     if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -41,14 +41,8 @@
           </div>
         </div>
         <div id="login-error" style="display:none;background:#fef2f2;border:1px solid #fecaca;color:#dc2626;padding:10px 14px;border-radius:8px;font-size:0.875rem;margin-bottom:12px"></div>
-        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:12px" id="login-btn">
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:12px;margin-top:8px" id="login-btn">
           Sign In →
-        </button>
-        <div style="margin-top:16px;text-align:center;font-size:0.78rem;color:var(--text-muted)">
-          Default: <strong style="cursor:pointer;text-decoration:underline;color:var(--primary)" onclick="fillDefaultCreds()" title="Click to fill credentials">admin@dvevents.com / Admin@123</strong>
-        </div>
-        <button type="button" onclick="fillAndSubmitDefaultCreds()" class="btn btn-secondary" style="width:100%;justify-content:center;margin-top:12px;font-size:0.82rem;padding:9px 12px;opacity:0.9">
-          ⚡ 1-Click Admin Login
         </button>
       </form>
     </div>
@@ -448,7 +442,7 @@
   </div><!-- /app-shell -->
 
   <script src="/js/xlsx.full.min.js"></script>
-  <script src="/js/app.js?v=4.4"></script>
+  <script src="/js/app.js?v=4.5"></script>
   <script>
     // AMOLED Dark Mode & Theme logic
     function applyTheme(isDark) {

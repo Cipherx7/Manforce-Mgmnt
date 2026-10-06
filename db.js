@@ -17,6 +17,10 @@ const poolConfig = {
 
 const pgPool = new Pool(poolConfig);
 
+pgPool.on('error', (err) => {
+  console.error('⚠️ Supabase pool connection error (handled):', err.message);
+});
+
 function adaptSql(sql) {
   if (typeof sql !== 'string') return { adapted: sql, isInsert: false };
   let index = 1;

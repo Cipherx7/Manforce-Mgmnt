@@ -1430,28 +1430,51 @@ tbody td:first-child {
 
 /* ─── Button Loading State ─────────────────────────────────────── */
 .btn.loading {
-  cursor: not-allowed;
-  pointer-events: none;
-  opacity: 0.72;
-  color: transparent !important;
+  position: relative !important;
+  cursor: wait !important;
+  pointer-events: none !important;
+  opacity: 0.8 !important;
+  user-select: none !important;
 }
+
+.btn.loading > * {
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
 .btn.loading::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  margin: auto;
-  width: 16px;
-  height: 16px;
-  border: 2px solid currentColor;
-  border-color: rgba(255,255,255,0.7) rgba(255,255,255,0.7) rgba(255,255,255,0.7) transparent;
-  border-radius: 50%;
-  animation: btnSpin 0.65s linear infinite;
+  content: '' !important;
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  width: 16px !important;
+  height: 16px !important;
+  margin-top: -8px !important;
+  margin-left: -8px !important;
+  border: 2px solid rgba(255, 255, 255, 0.35) !important;
+  border-top-color: #ffffff !important;
+  border-radius: 50% !important;
+  animation: btnSpin 0.6s linear infinite !important;
+  z-index: 10 !important;
+  box-sizing: border-box !important;
 }
+
 .btn-secondary.loading::after,
-.btn-success.loading::after,
-.btn-danger.loading::after {
-  border-color: rgba(79,70,229,0.6) rgba(79,70,229,0.6) rgba(79,70,229,0.6) transparent;
+.btn-outline.loading::after {
+  border-color: rgba(99, 102, 241, 0.25) !important;
+  border-top-color: var(--accent) !important;
 }
+
+.btn-success.loading::after {
+  border-color: rgba(5, 150, 105, 0.25) !important;
+  border-top-color: #059669 !important;
+}
+
+.btn-danger.loading::after {
+  border-color: rgba(220, 38, 38, 0.25) !important;
+  border-top-color: #dc2626 !important;
+}
+
 @keyframes btnSpin { to { transform: rotate(360deg); } }
 
 .btn-primary {
@@ -2498,9 +2521,6 @@ select option {
   .res-row {
     grid-template-columns: 28px minmax(200px, 1.4fr) minmax(150px, 1.1fr) minmax(160px, 1.1fr) minmax(90px, 0.7fr) 36px;
   }
-  .res-col-avail {
-    display: none;
-  }
 }
 
 @media (max-width: 860px) {
@@ -2511,6 +2531,7 @@ select option {
   }
   .res-col-roles,
   .res-col-contact,
+  .res-col-manager,
   .res-col-status {
     grid-column: 2 / -1;
   }
@@ -5325,11 +5346,43 @@ td.menu-open,
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
 
-/* Mapping Table */
+/* ─── Upgraded Step 2 Property Mapping UI ────────────────────── */
+.mapping-header-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 16px 20px;
+  margin-bottom: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.mapping-progress-track {
+  width: 150px;
+  height: 6px;
+  border-radius: 999px;
+  background: var(--bg-hover);
+  overflow: hidden;
+  margin-top: 6px;
+}
+
+.mapping-progress-bar {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--accent);
+  transition: width 0.3s ease;
+}
+
 .mapping-table-wrap {
   overflow-x: auto;
-  border-radius: 10px;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 12px;
   border: 1px solid var(--border);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-xs);
   margin-top: 14px;
 }
 
@@ -5341,61 +5394,156 @@ td.menu-open,
 }
 
 .mapping-table th {
-  padding: 12px 16px;
+  padding: 12px 18px;
   font-weight: 600;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   color: var(--text-secondary);
   background: var(--bg-hover);
   border-bottom: 1px solid var(--border);
+  white-space: nowrap;
 }
 
 .mapping-table td {
-  padding: 12px 16px;
+  padding: 14px 18px;
   border-bottom: 1px solid var(--border);
   vertical-align: middle;
+  transition: background 0.15s ease;
 }
 
-.mapping-table tr:last-child td {
-  border-bottom: none;
+.mapping-table tr:hover td {
+  background: rgba(99, 102, 241, 0.025);
+}
+
+.dark .mapping-table tr:hover td {
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.mapping-table tr.is-mapped td {
+  background: rgba(16, 185, 129, 0.015);
+}
+
+.mapping-col-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 6px;
+  background: var(--bg-hover);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  margin-right: 8px;
+}
+
+.mapping-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.mapping-status-pill.mapped {
+  background: rgba(16, 185, 129, 0.12);
+  color: #059669;
+  border: 1px solid rgba(16, 185, 129, 0.25);
+}
+
+.dark .mapping-status-pill.mapped {
+  background: rgba(16, 185, 129, 0.2);
+  color: #34d399;
+}
+
+.mapping-status-pill.skipped {
+  background: var(--bg-hover);
+  color: var(--text-muted);
+  border: 1px solid var(--border);
 }
 
 .mapping-select {
   width: 100%;
   max-width: 320px;
-  padding: 8px 12px;
+  padding: 9px 12px;
   border-radius: 8px;
-  border: 1px solid var(--border);
+  border: 1.5px solid var(--border);
   background: var(--bg-card);
   color: var(--text-primary);
   font-size: 0.88rem;
   font-family: inherit;
-  transition: border-color 0.2s ease;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.mapping-select.mapped {
+  border-color: rgba(99, 102, 241, 0.45);
+  background: rgba(99, 102, 241, 0.03);
 }
 
 .mapping-select:focus {
   outline: none;
   border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
 }
 
 .mapping-preview-chip {
-  display: inline-block;
-  max-width: 240px;
+  display: inline-flex;
+  align-items: center;
+  max-width: 260px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  padding: 3px 8px;
+  padding: 4px 10px;
   border-radius: 6px;
   background: var(--bg-hover);
-  color: var(--text-muted);
+  border: 1px solid var(--border);
+  color: var(--text-primary);
   font-family: ui-monospace, monospace;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
 }
 
-/* Preview Table */
+/* ─── Upgraded Step 3 Preview UI ────────────────────────────── */
+.import-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.import-kpi-card {
+  padding: 16px 18px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.import-kpi-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.3rem;
+  flex-shrink: 0;
+}
+
 .import-preview-wrap {
   overflow-x: auto;
-  border-radius: 10px;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 12px;
   border: 1px solid var(--border);
-  max-height: 480px;
+  max-height: 520px;
+  background: var(--bg-card);
+  box-shadow: var(--shadow-xs);
 }
 
 .import-preview-table {
@@ -5407,9 +5555,12 @@ td.menu-open,
 .import-preview-table th {
   position: sticky;
   top: 0;
-  background: var(--bg-card);
-  padding: 10px 14px;
+  background: var(--bg-hover);
+  padding: 12px 16px;
   font-weight: 600;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   color: var(--text-secondary);
   border-bottom: 1px solid var(--border);
   z-index: 2;
@@ -5417,10 +5568,15 @@ td.menu-open,
 }
 
 .import-preview-table td {
-  padding: 10px 14px;
+  padding: 12px 16px;
   border-bottom: 1px solid var(--border);
   color: var(--text-primary);
   white-space: nowrap;
+  vertical-align: middle;
+}
+
+.import-preview-table tr:hover td {
+  background: rgba(99, 102, 241, 0.02);
 }
 
 .import-avatar-thumb {
@@ -5800,6 +5956,67 @@ td.menu-open,
   color: #ffffff;
   font-size: 0.78rem;
   font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  .bulk-action-bar {
+    bottom: 74px !important;
+    width: calc(100% - 28px);
+    max-width: 480px;
+    justify-content: space-between;
+    padding: 8px 14px;
+    font-size: 0.85rem;
+    gap: 10px;
+  }
+
+  .bulk-action-bar .bulk-count-badge {
+    width: 22px;
+    height: 22px;
+    font-size: 0.74rem;
+  }
+
+  .mapping-header-card {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+  }
+
+  .mapping-select {
+    max-width: 100%;
+  }
+
+  .import-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .import-kpi-card {
+    padding: 12px 14px;
+    gap: 10px;
+  }
+
+  .import-kpi-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .bulk-action-bar {
+    bottom: 72px !important;
+    padding: 8px 10px;
+    gap: 6px;
+  }
+
+  .bulk-action-bar .btn {
+    padding: 5px 8px !important;
+    font-size: 0.75rem !important;
+  }
+
+  .import-kpi-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 /* ─── Modern Premium Custom Checkbox UI ──────────────────────── */

@@ -5,23 +5,62 @@
 
 const API = '/api';
 
-// ─── Global Button Loading State ──────────────────────────────
-// Adds .loading to any .btn on click; removes it when the click
-// handler's async work settles (or after 12s safety timeout).
-// Opt-out: add data-no-loading to a button.
-(function () {
-  const NO_LOAD_SELECTOR = '[data-no-loading], .menu-trigger, .modal-close, [data-page], #sidebar-toggle, #theme-toggle, #topbar-avatar, #pwd-toggle, [type="checkbox"]';
-  document.addEventListener('click', async (e) => {
-    const btn = e.target.closest('.btn');
-    if (!btn || btn.matches(NO_LOAD_SELECTOR) || btn.classList.contains('loading') || btn.disabled) return;
+// ─── Global Button Loading State Manager ──────────────────────
+let activeFetchCount = 0;
+const activeLoadingButtons = new Set();
+
+function checkPendingButtons() {
+  if (activeFetchCount > 0) return;
+  const now = Date.now();
+  activeLoadingButtons.forEach(entry => {
+    const remaining = Math.max(0, entry.minUntil - now);
+    setTimeout(() => {
+      if (activeFetchCount === 0 && entry.btn) {
+        entry.btn.classList.remove('loading');
+        entry.btn.removeAttribute('aria-busy');
+        activeLoadingButtons.delete(entry);
+      }
+    }, remaining);
+  });
+}
+
+function setButtonLoading(btn, isLoading) {
+  if (!btn) return;
+  if (isLoading) {
     btn.classList.add('loading');
     btn.setAttribute('aria-busy', 'true');
-    const timer = setTimeout(() => done(), 12000);
-    function done() { clearTimeout(timer); btn.classList.remove('loading'); btn.removeAttribute('aria-busy'); }
-    // Wait one tick for the attached onclick/listener to kick off, then
-    // settle on the first requestAnimationFrame after any microtasks drain.
-    await Promise.resolve();
-    requestAnimationFrame(() => requestAnimationFrame(done));
+    btn.disabled = true;
+  } else {
+    btn.classList.remove('loading');
+    btn.removeAttribute('aria-busy');
+    btn.disabled = false;
+  }
+}
+
+(function () {
+  const NO_LOAD_SELECTOR = '[data-no-loading], .menu-trigger, .modal-close, [data-page], #sidebar-toggle, #theme-toggle, #topbar-avatar, #pwd-toggle, [type="checkbox"], [type="radio"]';
+  document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.btn');
+    if (!btn || btn.matches(NO_LOAD_SELECTOR) || btn.classList.contains('loading') || btn.disabled) return;
+
+    btn.classList.add('loading');
+    btn.setAttribute('aria-busy', 'true');
+    const entry = { btn, minUntil: Date.now() + 450 };
+    activeLoadingButtons.add(entry);
+
+    // 10s fallback safety timeout so buttons never get stuck
+    setTimeout(() => {
+      if (entry.btn) {
+        entry.btn.classList.remove('loading');
+        entry.btn.removeAttribute('aria-busy');
+      }
+      activeLoadingButtons.delete(entry);
+    }, 10000);
+
+    // Initial check after min visual feedback duration
+    setTimeout(() => {
+      checkPendingButtons();
+    }, 450);
   }, true);
 })();
 
@@ -87,23 +126,31 @@ const $ = (sel, ctx = document) => ctx.querySelector(sel);
 const $$ = (sel, ctx = document) => ctx.querySelectorAll(sel);
 
 async function api(path, method = 'GET', body = null) {
-  const opts = {
-    method,
-    headers: {
-      'Content-Type': 'application/json',
-      ...(auth.token ? { 'Authorization': `Bearer ${auth.token}` } : {}),
-    },
-  };
-  if (body) opts.body = JSON.stringify(body);
-  const res = await fetch(API + path, opts);
-  if (res.status === 401) {
-    // Session expired — force re-login
-    authLogout(false);
-    return {};
+  activeFetchCount++;
+  try {
+    const opts = {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(auth.token ? { 'Authorization': `Bearer ${auth.token}` } : {}),
+      },
+    };
+    if (body) opts.body = JSON.stringify(body);
+    const res = await fetch(API + path, opts);
+    if (res.status === 401) {
+      // Session expired — force re-login
+      authLogout(false);
+      return {};
+    }
+    const data = await res.json();
+    if (!data.success && res.status >= 400) throw new Error(data.error || 'API error');
+    return data;
+  } finally {
+    activeFetchCount = Math.max(0, activeFetchCount - 1);
+    if (activeFetchCount === 0) {
+      checkPendingButtons();
+    }
   }
-  const data = await res.json();
-  if (!data.success && res.status >= 400) throw new Error(data.error || 'API error');
-  return data;
 }
 
 function toast(msg, type = 'info') {
@@ -5783,6 +5830,7 @@ async function handleLogin(e) {
 
   errEl.style.display = 'none';
   btnEl.disabled = true;
+  btnEl.classList.add('loading');
   btnEl.textContent = 'Signing in…';
 
   try {
@@ -5807,6 +5855,7 @@ async function handleLogin(e) {
     errEl.style.display = 'block';
   } finally {
     btnEl.disabled = false;
+    btnEl.classList.remove('loading');
     btnEl.textContent = 'Sign In →';
   }
 }
@@ -5836,20 +5885,7 @@ function toggleLoginPassword() {
   else                         { pwd.type = 'password'; btn.textContent = '👁'; }
 }
 
-function fillDefaultCreds() {
-  const emailEl = document.getElementById('login-email');
-  const pwdEl   = document.getElementById('login-password');
-  if (emailEl) emailEl.value = 'admin@dvevents.com';
-  if (pwdEl)   pwdEl.value   = 'Admin@123';
-}
 
-function fillAndSubmitDefaultCreds() {
-  fillDefaultCreds();
-  const form = document.getElementById('login-form');
-  if (form) {
-    handleLogin(new Event('submit', { cancelable: true }));
-  }
-}
 
 // ════════════════════════════════════════════════════════════════
 // USERS & ROLES PAGE (Super Admin only)
@@ -7652,21 +7688,36 @@ function renderImportStep2() {
   imp.headers.forEach((_, idx) => {
     if (imp.columnMap[idx] && imp.columnMap[idx] !== '__skip__') mappedCount++;
   });
+  const totalHeaders = imp.headers.length || 1;
+  const mappedPct = Math.round((mappedCount / totalHeaders) * 100);
 
   return `
     <div class="card p-6">
-      <div class="flex justify-between items-center mb-4" style="flex-wrap:wrap;gap:12px">
+      <!-- Upgraded Step 2 Header -->
+      <div class="mapping-header-card">
         <div>
-          <h3 style="font-size:1.15rem;font-weight:700;color:var(--text-primary);margin:0">
-            Map Sheet Columns to Resource Fields
-          </h3>
-          <p class="text-muted text-sm" style="margin:2px 0 0">
-            Match columns from <strong>${escapeHtml(imp.fileName || 'source')}</strong> (${imp.rawRows.length} rows) to DV Events properties.
+          <div class="flex items-center gap-2 mb-1">
+            <span style="font-size:1.2rem">🧭</span>
+            <h3 style="font-size:1.15rem;font-weight:700;color:var(--text-primary);margin:0">
+              Map Sheet Columns to Resource Fields
+            </h3>
+          </div>
+          <p class="text-muted text-sm" style="margin:0">
+            Match columns from <strong>${escapeHtml(imp.fileName || 'source data')}</strong> (${imp.rawRows.length} rows) to DV Events properties.
           </p>
         </div>
-        <div>
-          <span class="badge" style="background:rgba(99, 102, 241, 0.15);color:var(--accent);font-weight:600;padding:6px 12px">
-            ${mappedCount} of ${imp.headers.length} Columns Mapped
+        <div class="flex items-center gap-4" style="flex-wrap:wrap">
+          <div>
+            <div class="flex items-center justify-between gap-3 text-xs font-semibold" style="color:var(--text-secondary)">
+              <span>Mapping Progress</span>
+              <span style="color:var(--accent);font-weight:700">${mappedPct}%</span>
+            </div>
+            <div class="mapping-progress-track">
+              <div class="mapping-progress-bar" style="width:${mappedPct}%"></div>
+            </div>
+          </div>
+          <span class="badge" style="background:rgba(99, 102, 241, 0.12);color:var(--accent);font-weight:700;padding:7px 14px;border:1px solid rgba(99, 102, 241, 0.25);font-size:0.82rem">
+            ${mappedCount} of ${imp.headers.length} Mapped
           </span>
         </div>
       </div>
@@ -7677,22 +7728,27 @@ function renderImportStep2() {
           <thead>
             <tr>
               <th style="width:28%">File Column Header</th>
-              <th style="width:32%">Sample Value (Row 1)</th>
-              <th style="width:40%">Target Resource Property</th>
+              <th style="width:32%">Sample Value (Row 1 / 2)</th>
+              <th style="width:28%">Target Resource Property</th>
+              <th style="width:12%;text-align:center">Status</th>
             </tr>
           </thead>
           <tbody>
             ${imp.headers.map((header, idx) => {
               const currentTarget = imp.columnMap[idx] || '__skip__';
+              const isMapped = currentTarget !== '__skip__';
               const firstRowVal = (imp.rawRows[0] && imp.rawRows[0][idx] !== undefined) ? String(imp.rawRows[0][idx]).trim() : '';
               const secondRowVal = (!firstRowVal && imp.rawRows[1] && imp.rawRows[1][idx] !== undefined) ? String(imp.rawRows[1][idx]).trim() : '';
               const sampleVal = firstRowVal || secondRowVal || '(empty)';
 
               return `
-                <tr>
+                <tr class="${isMapped ? 'is-mapped' : ''}">
                   <td>
-                    <div style="font-weight:600;color:var(--text-primary)">
-                      ${escapeHtml(header || `Column ${idx + 1}`)}
+                    <div class="flex items-center">
+                      <span class="mapping-col-badge">Col ${idx + 1}</span>
+                      <span style="font-weight:600;color:var(--text-primary);font-size:0.88rem">
+                        ${escapeHtml(header || `Column ${idx + 1}`)}
+                      </span>
                     </div>
                   </td>
                   <td>
@@ -7701,13 +7757,18 @@ function renderImportStep2() {
                     </span>
                   </td>
                   <td>
-                    <select class="mapping-select" onchange="handleMappingChange(${idx}, this.value)">
+                    <select class="mapping-select ${isMapped ? 'mapped' : ''}" onchange="handleMappingChange(${idx}, this.value)">
                       ${IMPORT_SYSTEM_FIELDS.map(f => `
                         <option value="${f.key}" ${currentTarget === f.key ? 'selected' : ''}>
                           ${f.label}
                         </option>
                       `).join('')}
                     </select>
+                  </td>
+                  <td style="text-align:center">
+                    <span class="mapping-status-pill ${isMapped ? 'mapped' : 'skipped'}">
+                      ${isMapped ? '✓ Mapped' : '○ Skip'}
+                    </span>
                   </td>
                 </tr>
               `;
@@ -7717,10 +7778,16 @@ function renderImportStep2() {
       </div>
 
       <!-- Fallback Defaults Card -->
-      <div class="card p-5 mt-6" style="background:var(--bg-hover);border:1px solid var(--border)">
-        <h4 style="font-size:0.95rem;font-weight:700;margin-bottom:12px;color:var(--text-primary)">
-          Defaults for Unmapped or Blank Fields
-        </h4>
+      <div class="card p-5 mt-6" style="background:var(--bg-hover);border:1px solid var(--border);border-radius:12px">
+        <div class="flex items-center gap-2 mb-2">
+          <span style="font-size:1.1rem">⚙️</span>
+          <h4 style="font-size:0.95rem;font-weight:700;margin:0;color:var(--text-primary)">
+            Defaults for Unmapped or Blank Fields
+          </h4>
+        </div>
+        <p class="text-xs text-muted" style="margin-bottom:14px">
+          These fallback values will be applied to records where the property is missing or unmapped.
+        </p>
         <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(220px, 1fr));gap:16px">
           <div>
             <label class="form-label text-xs">Default Initial Status</label>
@@ -7777,6 +7844,7 @@ function renderImportStep2() {
 
 function handleMappingChange(idx, targetKey) {
   state.resourceImport.columnMap[idx] = targetKey;
+  renderResourceImportPage();
 }
 
 function proceedToImportPreview() {
@@ -7943,38 +8011,61 @@ function renderImportStep3() {
     <div class="card p-6">
       <div class="flex justify-between items-center mb-5" style="flex-wrap:wrap;gap:12px">
         <div>
-          <h3 style="font-size:1.15rem;font-weight:700;color:var(--text-primary);margin:0">
-            Preview &amp; Validate Data
-          </h3>
-          <p class="text-muted text-sm" style="margin:2px 0 0">
-            Review the mapped personnel records before adding them to your manpower inventory.
+          <div class="flex items-center gap-2 mb-1">
+            <span style="font-size:1.2rem">🔍</span>
+            <h3 style="font-size:1.15rem;font-weight:700;color:var(--text-primary);margin:0">
+              Preview &amp; Validate Data
+            </h3>
+          </div>
+          <p class="text-muted text-sm" style="margin:0">
+            Review parsed personnel records before onboarding into your manpower pool.
           </p>
         </div>
       </div>
 
-      <!-- Stat Badges -->
-      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(180px, 1fr));gap:14px;margin-bottom:20px">
-        <div class="card p-3" style="background:var(--bg-hover)">
-          <div class="text-xs text-muted font-medium">Total Rows</div>
-          <div style="font-size:1.4rem;font-weight:700;color:var(--text-primary)">${items.length}</div>
+      <!-- Upgraded Stat Badges Grid -->
+      <div class="import-kpi-grid">
+        <div class="import-kpi-card">
+          <div class="import-kpi-icon" style="background:rgba(99, 102, 241, 0.1);color:var(--accent)">📊</div>
+          <div>
+            <div class="text-xs text-muted font-medium">Total Rows</div>
+            <div style="font-size:1.4rem;font-weight:700;color:var(--text-primary)">${items.length}</div>
+          </div>
         </div>
-        <div class="card p-3" style="background:rgba(16, 185, 129, 0.08);border-color:rgba(16, 185, 129, 0.2)">
-          <div class="text-xs text-muted font-medium">Ready to Import</div>
-          <div style="font-size:1.4rem;font-weight:700;color:#10b981">${validItems.length}</div>
+        <div class="import-kpi-card" style="border-color:rgba(16, 185, 129, 0.25)">
+          <div class="import-kpi-icon" style="background:rgba(16, 185, 129, 0.1);color:#10b981">👥</div>
+          <div>
+            <div class="text-xs text-muted font-medium">Ready to Import</div>
+            <div style="font-size:1.4rem;font-weight:700;color:#10b981">${validItems.length}</div>
+          </div>
         </div>
-        <div class="card p-3" style="background:rgba(99, 102, 241, 0.08);border-color:rgba(99, 102, 241, 0.2)">
-          <div class="text-xs text-muted font-medium">Photos Converted</div>
-          <div style="font-size:1.4rem;font-weight:700;color:var(--accent)">
-            ${withPhotos.length}
-            ${withDrivePhotos.length ? `<span class="text-xs font-normal" style="color:var(--text-muted)"> (${withDrivePhotos.length} from Drive)</span>` : ''}
+        <div class="import-kpi-card" style="border-color:rgba(59, 130, 246, 0.25)">
+          <div class="import-kpi-icon" style="background:rgba(59, 130, 246, 0.1);color:#3b82f6">🖼️</div>
+          <div>
+            <div class="text-xs text-muted font-medium">Photos Converted</div>
+            <div style="font-size:1.4rem;font-weight:700;color:#3b82f6">
+              ${withPhotos.length}
+              ${withDrivePhotos.length ? `<span class="text-xs font-normal" style="color:var(--text-muted)"> (${withDrivePhotos.length} Drive)</span>` : ''}
+            </div>
           </div>
         </div>
         ${invalidItems.length ? `
-          <div class="card p-3" style="background:rgba(239, 68, 68, 0.08);border-color:rgba(239, 68, 68, 0.2)">
-            <div class="text-xs text-muted font-medium">Missing Name (Skipped)</div>
-            <div style="font-size:1.4rem;font-weight:700;color:#ef4444">${invalidItems.length}</div>
+          <div class="import-kpi-card" style="border-color:rgba(239, 68, 68, 0.25)">
+            <div class="import-kpi-icon" style="background:rgba(239, 68, 68, 0.1);color:#ef4444">⚠️</div>
+            <div>
+              <div class="text-xs text-muted font-medium">Missing Name (Skipped)</div>
+              <div style="font-size:1.4rem;font-weight:700;color:#ef4444">${invalidItems.length}</div>
+            </div>
           </div>
-        ` : ''}
+        ` : `
+          <div class="import-kpi-card" style="border-color:rgba(16, 185, 129, 0.25)">
+            <div class="import-kpi-icon" style="background:rgba(16, 185, 129, 0.1);color:#10b981">✨</div>
+            <div>
+              <div class="text-xs text-muted font-medium">Data Integrity</div>
+              <div style="font-size:1.15rem;font-weight:700;color:#10b981">100% Valid</div>
+            </div>
+          </div>
+        `}
       </div>
 
       <!-- Live Preview Table -->
@@ -7988,7 +8079,7 @@ function renderImportStep3() {
               <th>Age / Gender / Ht</th>
               <th>Zone (Pune)</th>
               <th>Category &amp; Opted Roles</th>
-              <th>Availability &amp; Languages</th>
+              <th>Availability</th>
               <th>Status</th>
               <th>Experience</th>
             </tr>
@@ -8046,11 +8137,6 @@ function renderImportStep3() {
                     <div style="font-size:0.8rem;font-weight:500;color:var(--text-primary)">
                       🗓️ ${escapeHtml(r.availability || 'Flexible')}
                     </div>
-                    ${r.languages ? `
-                      <div class="text-xs text-muted" style="margin-top:2px">
-                        🗣️ ${escapeHtml(r.languages)}
-                      </div>
-                    ` : ''}
                   </td>
                   <td>
                     ${badge(r.status || 'available')}
@@ -8070,7 +8156,7 @@ function renderImportStep3() {
       </div>
 
       ${items.length > 15 ? `
-        <div class="text-center text-xs text-muted mt-2">
+        <div class="text-center text-xs text-muted mt-3">
           Showing first 15 of ${items.length} records. All ${validItems.length} valid records will be imported.
         </div>
       ` : ''}
@@ -8107,6 +8193,7 @@ async function executeResourceBulkImport() {
   const btn = $('#import-execute-btn');
   if (btn) {
     btn.disabled = true;
+    btn.classList.add('loading');
     btn.innerHTML = `<span class="spinner" style="width:16px;height:16px;margin-right:8px"></span> Importing ${items.length} resources...`;
   }
 
@@ -8133,6 +8220,7 @@ async function executeResourceBulkImport() {
     toast('Import failed: ' + err.message, 'error');
     if (btn) {
       btn.disabled = false;
+      btn.classList.remove('loading');
       btn.innerHTML = `Confirm &amp; Import ${items.length} Resources`;
     }
   }
