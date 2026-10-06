@@ -628,6 +628,32 @@
   color: #71717a;
 }
 
+.dark .circular-line.ring-base,
+.dark .circular-line.ring-2,
+.dark .circular-line.ring-4,
+.dark .circular-line.ring-6 {
+  stroke: rgba(255, 255, 255, 0.08);
+}
+
+.dark .arc-1 {
+  stroke: #818cf8;
+  filter: drop-shadow(0 0 10px rgba(129, 140, 248, 0.85));
+}
+
+.dark .arc-2 {
+  stroke: #38bdf8;
+  filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.9));
+}
+
+.dark .arc-3 {
+  stroke: #c084fc;
+  filter: drop-shadow(0 0 10px rgba(192, 132, 252, 0.85));
+}
+
+.dark .orbit-dot {
+  stroke: rgba(255, 255, 255, 0.85);
+}
+
 /* AMOLED Dark Mode User Management & Permissions */
 .dark .users-table-wrap,
 .dark .user-form-card,
@@ -2716,9 +2742,174 @@ select option {
   justify-content: center;
   z-index: 9999;
   font-family: 'Urbanist', sans-serif;
+  overflow: hidden;
+}
+
+/* ─── Circular Line Moving Background Pattern ─────────────────── */
+.login-bg-pattern {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(1300px, 150vw);
+  height: min(1300px, 150vw);
+  pointer-events: none;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 32%, rgba(0,0,0,0.85) 65%, transparent 92%);
+  -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 32%, rgba(0,0,0,0.85) 65%, transparent 92%);
+}
+
+.login-pattern-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* Ambient glow subtle breathing */
+.login-glow-pulse {
+  animation: glowPulse 8s ease-in-out infinite alternate;
+  transform-origin: 500px 500px;
+}
+
+/* Base circular lines */
+.circular-line {
+  fill: none;
+  transform-origin: 500px 500px;
+}
+
+.ring-base {
+  stroke: rgba(99, 102, 241, 0.14);
+  stroke-width: 1px;
+}
+
+.ring-1 {
+  stroke-dasharray: 4 8;
+  animation: rotateCW 40s linear infinite;
+}
+
+.ring-2 {
+  stroke: rgba(99, 102, 241, 0.18);
+  stroke-dasharray: 12 12;
+  stroke-width: 1.2px;
+  animation: rotateCCW 50s linear infinite;
+}
+
+.ring-3 {
+  stroke: url(#orbit-grad-1);
+  stroke-width: 1.4px;
+  stroke-dasharray: 24 16 6 16;
+  animation: rotateCW 65s linear infinite;
+}
+
+.ring-4 {
+  stroke: rgba(99, 102, 241, 0.15);
+  stroke-dasharray: 6 10;
+  stroke-width: 1px;
+  animation: rotateCCW 75s linear infinite;
+}
+
+.ring-5 {
+  stroke: url(#orbit-grad-2);
+  stroke-width: 1.5px;
+  stroke-dasharray: 36 20 12 20;
+  animation: rotateCW 90s linear infinite;
+}
+
+.ring-6 {
+  stroke: rgba(99, 102, 241, 0.1);
+  stroke-dasharray: 8 16;
+  stroke-width: 1px;
+  animation: rotateCCW 110s linear infinite;
+}
+
+/* Moving high-speed orbital line arcs */
+.ring-arc {
+  stroke-linecap: round;
+}
+
+.arc-1 {
+  stroke: #6366f1;
+  stroke-width: 2.2px;
+  stroke-dasharray: 90 630;
+  animation: rotateCW 18s linear infinite;
+  filter: drop-shadow(0 0 6px rgba(99, 102, 241, 0.5));
+}
+
+.arc-2 {
+  stroke: #38bdf8;
+  stroke-width: 2.4px;
+  stroke-dasharray: 120 1050;
+  animation: rotateCCW 24s linear infinite;
+  filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.6));
+}
+
+.arc-3 {
+  stroke: #a855f7;
+  stroke-width: 2px;
+  stroke-dasharray: 150 1260;
+  animation: rotateCW 32s linear infinite;
+  filter: drop-shadow(0 0 6px rgba(168, 85, 247, 0.5));
+}
+
+/* Revolving orbital systems */
+.orbit-system {
+  transform-origin: 500px 500px;
+}
+
+.orbit-speed-fast {
+  animation: rotateCW 20s linear infinite;
+}
+
+.orbit-speed-mid {
+  animation: rotateCCW 30s linear infinite;
+}
+
+.orbit-speed-slow {
+  animation: rotateCW 45s linear infinite;
+}
+
+.orbit-dot {
+  stroke: rgba(255, 255, 255, 0.6);
+  stroke-width: 1px;
+}
+
+.dot-indigo {
+  fill: #6366f1;
+  filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.8));
+}
+
+.dot-cyan {
+  fill: #38bdf8;
+  filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.8));
+}
+
+.dot-purple {
+  fill: #a855f7;
+  filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.8));
+}
+
+/* Keyframe animations */
+@keyframes rotateCW {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes rotateCCW {
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
+}
+
+@keyframes glowPulse {
+  0% { transform: scale(0.92); opacity: 0.6; }
+  100% { transform: scale(1.08); opacity: 1; }
 }
 
 .login-card {
+  position: relative;
+  z-index: 2;
   background: #ffffff;
   border-radius: var(--radius-xl);
   box-shadow: 0 24px 48px rgba(79, 70, 229, 0.12), 0 4px 16px rgba(0,0,0,0.06);
