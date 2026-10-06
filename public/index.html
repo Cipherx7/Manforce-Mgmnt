@@ -97,8 +97,11 @@
           Sign In →
         </button>
         <div style="margin-top:16px;text-align:center;font-size:0.78rem;color:var(--text-muted)">
-          Default: <strong>admin@dvevents.com</strong> / <strong>Admin@123</strong>
+          Default: <strong style="cursor:pointer;text-decoration:underline;color:var(--primary)" onclick="fillDefaultCreds()" title="Click to fill credentials">admin@dvevents.com / Admin@123</strong>
         </div>
+        <button type="button" onclick="fillAndSubmitDefaultCreds()" class="btn btn-secondary" style="width:100%;justify-content:center;margin-top:12px;font-size:0.82rem;padding:9px 12px;opacity:0.9">
+          ⚡ 1-Click Admin Login
+        </button>
       </form>
     </div>
   </div>
@@ -497,7 +500,7 @@
   </div><!-- /app-shell -->
 
   <script src="/js/xlsx.full.min.js"></script>
-  <script src="/js/app.js?v=4.0"></script>
+  <script src="/js/app.js?v=4.1"></script>
   <script>
     // AMOLED Dark Mode & Theme logic
     function applyTheme(isDark) {

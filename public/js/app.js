@@ -5777,6 +5777,21 @@ function toggleLoginPassword() {
   else                         { pwd.type = 'password'; btn.textContent = '👁'; }
 }
 
+function fillDefaultCreds() {
+  const emailEl = document.getElementById('login-email');
+  const pwdEl   = document.getElementById('login-password');
+  if (emailEl) emailEl.value = 'admin@dvevents.com';
+  if (pwdEl)   pwdEl.value   = 'Admin@123';
+}
+
+function fillAndSubmitDefaultCreds() {
+  fillDefaultCreds();
+  const form = document.getElementById('login-form');
+  if (form) {
+    handleLogin(new Event('submit', { cancelable: true }));
+  }
+}
+
 // ════════════════════════════════════════════════════════════════
 // USERS & ROLES PAGE (Super Admin only)
 // ════════════════════════════════════════════════════════════════
