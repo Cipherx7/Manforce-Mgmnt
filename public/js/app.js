@@ -5881,7 +5881,6 @@ async function loadUsersPage() {
                 <tr>
                   <th>User</th>
                   <th>Role</th>
-                  <th>Linked Manager</th>
                   <th>Status</th>
                   <th>Last Login</th>
                   <th>Access Scope</th>
@@ -5909,7 +5908,6 @@ async function loadUsersPage() {
                         </div>
                       </td>
                       <td><span class="role-badge ${u.role}">${roleLabels[u.role] || u.role}</span></td>
-                      <td class="text-muted" style="font-size:0.85rem">${u.manager_name ? escapeHtml(u.manager_name) : '<span style="color:var(--text-muted)">Unlinked</span>'}</td>
                       <td>
                         <span class="user-status-dot ${u.is_active ? 'active' : 'inactive'}">
                           ${u.is_active ? 'Active' : 'Deactivated'}
@@ -6206,10 +6204,6 @@ async function openUserFormPage(userId = null) {
   const formContainer = document.getElementById('page-user-form');
   if (!formContainer) return;
 
-  const managerOptions = managers.map(m =>
-    `<option value="${m.id}" ${user?.manager_id == m.id ? 'selected' : ''}>${escapeHtml(m.name)}</option>`
-  ).join('');
-
   const isLeadUser = user?.role === 'lead' || user?.role === 'super_admin';
 
   formContainer.innerHTML = `
@@ -6258,22 +6252,13 @@ async function openUserFormPage(userId = null) {
 
         <div class="form-group">
           <label class="form-label" style="font-weight:600">Organizational Role *</label>
-          <select id="uf-role" class="form-input" onchange="onRoleSelectChange(this)">
+          <select id="uf-role" class="form-input">
             <option value="manager" ${!isLeadUser ? 'selected' : ''}>Operations Manager</option>
             <option value="lead" ${isLeadUser ? 'selected' : ''}>Lead / Super Admin (Full Access)</option>
           </select>
           <div class="text-muted" style="font-size:0.75rem;margin-top:6px">
             Lead holds full administrative authority. Manager manages own workforce, view-only on projects &amp; clients.
           </div>
-        </div>
-
-        <div class="form-group" id="uf-manager-group" style="grid-column: 1 / -1; ${isLeadUser ? 'display:none;' : ''}">
-          <label class="form-label" style="font-weight:600">Linked Manager Profile (Optional)</label>
-          <select id="uf-manager" class="form-input" style="max-width:520px">
-            <option value="">— Unlinked / General Team Access —</option>
-            ${managerOptions}
-          </select>
-          <div class="text-muted" style="font-size:0.75rem;margin-top:6px">Links this login to a supervisor in the directory to scope team views, attendance, and resources.</div>
         </div>
       </div>
 
@@ -6369,10 +6354,6 @@ async function openUserDetailPage(userId) {
       <div class="user-detail-meta-card">
         <div class="user-detail-meta-label">Organizational Role</div>
         <div class="user-detail-meta-val">${roleLabels[user.role] || user.role}</div>
-      </div>
-      <div class="user-detail-meta-card">
-        <div class="user-detail-meta-label">Linked Manager Profile</div>
-        <div class="user-detail-meta-val">${user.manager_name ? escapeHtml(user.manager_name) : 'Unlinked / General Team Access'}</div>
       </div>
       <div class="user-detail-meta-card">
         <div class="user-detail-meta-label">Account Created</div>
@@ -6539,12 +6520,7 @@ function applyPermTemplate(templateKey, btnEl = null) {
   toast(`Applied ${template.label} template.`, 'info');
 }
 
-function onRoleSelectChange(selectEl) {
-  const mgrGroup = document.getElementById('uf-manager-group');
-  if (mgrGroup) {
-    mgrGroup.style.display = (selectEl.value === 'manager') ? '' : 'none';
-  }
-}
+
 
 function filterPermList() {
   const q = (document.getElementById('perm-search-input')?.value || '').toLowerCase().trim();
@@ -6604,14 +6580,13 @@ async function submitUserForm(userId = null) {
   const email    = document.getElementById('uf-email')?.value.trim();
   const password = document.getElementById('uf-password')?.value;
   const role     = document.getElementById('uf-role')?.value;
-  const mgr_id   = document.getElementById('uf-manager')?.value || null;
 
   if (!name || !email || !role) { toast('Full name, email address, and role are required.', 'error'); return; }
   if (!userId && !password)     { toast('Password is required when creating a new user.', 'error'); return; }
   if (password && password.length < 6) { toast('Password must be at least 6 characters.', 'error'); return; }
 
   try {
-    const payload = { name, email, role, manager_id: (role === 'manager' ? mgr_id : null) };
+    const payload = { name, email, role };
     if (password) payload.password = password;
 
     if (userId) {
