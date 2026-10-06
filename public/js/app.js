@@ -5,6 +5,26 @@
 
 const API = '/api';
 
+// ─── Global Button Loading State ──────────────────────────────
+// Adds .loading to any .btn on click; removes it when the click
+// handler's async work settles (or after 12s safety timeout).
+// Opt-out: add data-no-loading to a button.
+(function () {
+  const NO_LOAD_SELECTOR = '[data-no-loading], .menu-trigger, .modal-close, [data-page], #sidebar-toggle, #theme-toggle, #topbar-avatar, #pwd-toggle, [type="checkbox"]';
+  document.addEventListener('click', async (e) => {
+    const btn = e.target.closest('.btn');
+    if (!btn || btn.matches(NO_LOAD_SELECTOR) || btn.classList.contains('loading') || btn.disabled) return;
+    btn.classList.add('loading');
+    btn.setAttribute('aria-busy', 'true');
+    const timer = setTimeout(() => done(), 12000);
+    function done() { clearTimeout(timer); btn.classList.remove('loading'); btn.removeAttribute('aria-busy'); }
+    // Wait one tick for the attached onclick/listener to kick off, then
+    // settle on the first requestAnimationFrame after any microtasks drain.
+    await Promise.resolve();
+    requestAnimationFrame(() => requestAnimationFrame(done));
+  }, true);
+})();
+
 // ─── Auth State ───────────────────────────────────────────────
 const auth = {
   token: null,

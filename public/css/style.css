@@ -1448,7 +1448,35 @@ tbody td:first-child {
   white-space: nowrap;
   text-decoration: none;
   user-select: none;
+  position: relative;
+  overflow: hidden;
 }
+
+/* ─── Button Loading State ─────────────────────────────────────── */
+.btn.loading {
+  cursor: not-allowed;
+  pointer-events: none;
+  opacity: 0.72;
+  color: transparent !important;
+}
+.btn.loading::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 16px;
+  height: 16px;
+  border: 2px solid currentColor;
+  border-color: rgba(255,255,255,0.7) rgba(255,255,255,0.7) rgba(255,255,255,0.7) transparent;
+  border-radius: 50%;
+  animation: btnSpin 0.65s linear infinite;
+}
+.btn-secondary.loading::after,
+.btn-success.loading::after,
+.btn-danger.loading::after {
+  border-color: rgba(79,70,229,0.6) rgba(79,70,229,0.6) rgba(79,70,229,0.6) transparent;
+}
+@keyframes btnSpin { to { transform: rotate(360deg); } }
 
 .btn-primary {
   background: var(--accent);
@@ -2745,7 +2773,7 @@ select option {
   overflow: hidden;
 }
 
-/* ─── Circular Line Moving Background Pattern ─────────────────── */
+/* ─── Circular Line Moving Background Pattern (lightweight/faint) ── */
 .login-bg-pattern {
   position: absolute;
   top: 50%;
@@ -2755,11 +2783,12 @@ select option {
   height: min(1300px, 150vw);
   pointer-events: none;
   z-index: 1;
+  opacity: 0.35;  /* overall faint */
   display: flex;
   align-items: center;
   justify-content: center;
-  mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 32%, rgba(0,0,0,0.85) 65%, transparent 92%);
-  -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,1) 32%, rgba(0,0,0,0.85) 65%, transparent 92%);
+  mask-image: radial-gradient(circle at center, rgba(0,0,0,0.9) 30%, rgba(0,0,0,0.5) 65%, transparent 90%);
+  -webkit-mask-image: radial-gradient(circle at center, rgba(0,0,0,0.9) 30%, rgba(0,0,0,0.5) 65%, transparent 90%);
 }
 
 .login-pattern-svg {
@@ -2768,11 +2797,7 @@ select option {
   overflow: visible;
 }
 
-/* Ambient glow subtle breathing */
-.login-glow-pulse {
-  animation: glowPulse 8s ease-in-out infinite alternate;
-  transform-origin: 500px 500px;
-}
+.login-glow-pulse { display: none; } /* suppress heavy glow fill */
 
 /* Base circular lines */
 .circular-line {
@@ -2780,132 +2805,34 @@ select option {
   transform-origin: 500px 500px;
 }
 
-.ring-base {
-  stroke: rgba(99, 102, 241, 0.14);
-  stroke-width: 1px;
-}
+.ring-base { stroke: rgba(99, 102, 241, 0.2); stroke-width: 0.7px; }
 
-.ring-1 {
-  stroke-dasharray: 4 8;
-  animation: rotateCW 40s linear infinite;
-}
+.ring-1  { stroke-dasharray: 3 9;  animation: rotateCW  50s linear infinite; }
+.ring-2  { stroke: rgba(99,102,241,0.22); stroke-dasharray: 8 12; stroke-width: 0.8px; animation: rotateCCW 65s linear infinite; }
+.ring-3  { stroke: rgba(99,102,241,0.18); stroke-width: 0.9px; stroke-dasharray: 20 18 5 18; animation: rotateCW  80s linear infinite; }
+.ring-4  { stroke: rgba(99,102,241,0.18); stroke-dasharray: 5 11; stroke-width: 0.7px; animation: rotateCCW 95s linear infinite; }
+.ring-5  { stroke: rgba(99,102,241,0.16); stroke-width: 0.9px; stroke-dasharray: 28 22 8 22; animation: rotateCW 110s linear infinite; }
+.ring-6  { stroke: rgba(99,102,241,0.14); stroke-dasharray: 6 14; stroke-width: 0.6px; animation: rotateCCW 130s linear infinite; }
 
-.ring-2 {
-  stroke: rgba(99, 102, 241, 0.18);
-  stroke-dasharray: 12 12;
-  stroke-width: 1.2px;
-  animation: rotateCCW 50s linear infinite;
-}
+/* Faint moving arcs (no glow) */
+.ring-arc { stroke-linecap: round; }
 
-.ring-3 {
-  stroke: url(#orbit-grad-1);
-  stroke-width: 1.4px;
-  stroke-dasharray: 24 16 6 16;
-  animation: rotateCW 65s linear infinite;
-}
+.arc-1 { stroke: rgba(99,102,241,0.45); stroke-width: 1.2px; stroke-dasharray: 70 630;  animation: rotateCW  22s linear infinite; }
+.arc-2 { stroke: rgba(56,189,248,0.38); stroke-width: 1.2px; stroke-dasharray: 90 1050; animation: rotateCCW 30s linear infinite; }
+.arc-3 { stroke: rgba(168,85,247,0.35); stroke-width: 1px;   stroke-dasharray: 110 1260;animation: rotateCW  42s linear infinite; }
 
-.ring-4 {
-  stroke: rgba(99, 102, 241, 0.15);
-  stroke-dasharray: 6 10;
-  stroke-width: 1px;
-  animation: rotateCCW 75s linear infinite;
-}
+/* Orbital nodes (tiny, no glow) */
+.orbit-system  { transform-origin: 500px 500px; }
+.orbit-speed-fast { animation: rotateCW  24s linear infinite; }
+.orbit-speed-mid  { animation: rotateCCW 38s linear infinite; }
+.orbit-speed-slow { animation: rotateCW  55s linear infinite; }
+.orbit-dot     { stroke: none; }
+.dot-indigo    { fill: rgba(99,102,241,0.55); }
+.dot-cyan      { fill: rgba(56,189,248,0.50); }
+.dot-purple    { fill: rgba(168,85,247,0.50); }
 
-.ring-5 {
-  stroke: url(#orbit-grad-2);
-  stroke-width: 1.5px;
-  stroke-dasharray: 36 20 12 20;
-  animation: rotateCW 90s linear infinite;
-}
-
-.ring-6 {
-  stroke: rgba(99, 102, 241, 0.1);
-  stroke-dasharray: 8 16;
-  stroke-width: 1px;
-  animation: rotateCCW 110s linear infinite;
-}
-
-/* Moving high-speed orbital line arcs */
-.ring-arc {
-  stroke-linecap: round;
-}
-
-.arc-1 {
-  stroke: #6366f1;
-  stroke-width: 2.2px;
-  stroke-dasharray: 90 630;
-  animation: rotateCW 18s linear infinite;
-  filter: drop-shadow(0 0 6px rgba(99, 102, 241, 0.5));
-}
-
-.arc-2 {
-  stroke: #38bdf8;
-  stroke-width: 2.4px;
-  stroke-dasharray: 120 1050;
-  animation: rotateCCW 24s linear infinite;
-  filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.6));
-}
-
-.arc-3 {
-  stroke: #a855f7;
-  stroke-width: 2px;
-  stroke-dasharray: 150 1260;
-  animation: rotateCW 32s linear infinite;
-  filter: drop-shadow(0 0 6px rgba(168, 85, 247, 0.5));
-}
-
-/* Revolving orbital systems */
-.orbit-system {
-  transform-origin: 500px 500px;
-}
-
-.orbit-speed-fast {
-  animation: rotateCW 20s linear infinite;
-}
-
-.orbit-speed-mid {
-  animation: rotateCCW 30s linear infinite;
-}
-
-.orbit-speed-slow {
-  animation: rotateCW 45s linear infinite;
-}
-
-.orbit-dot {
-  stroke: rgba(255, 255, 255, 0.6);
-  stroke-width: 1px;
-}
-
-.dot-indigo {
-  fill: #6366f1;
-  filter: drop-shadow(0 0 8px rgba(99, 102, 241, 0.8));
-}
-
-.dot-cyan {
-  fill: #38bdf8;
-  filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.8));
-}
-
-.dot-purple {
-  fill: #a855f7;
-  filter: drop-shadow(0 0 8px rgba(168, 85, 247, 0.8));
-}
-
-/* Keyframe animations */
-@keyframes rotateCW {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
-}
-
-@keyframes rotateCCW {
-  from { transform: rotate(360deg); }
-  to { transform: rotate(0deg); }
-}
-
-@keyframes glowPulse {
-  0% { transform: scale(0.92); opacity: 0.6; }
-  100% { transform: scale(1.08); opacity: 1; }
-}
+@keyframes rotateCW  { from { transform: rotate(0deg); }   to { transform: rotate(360deg); } }
+@keyframes rotateCCW { from { transform: rotate(360deg); } to { transform: rotate(0deg); } }
 
 .login-card {
   position: relative;
