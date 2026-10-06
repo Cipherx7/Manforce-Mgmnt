@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/tailwind.css">
-  <link rel="stylesheet" href="/css/style.css?v=3.7">
+  <link rel="stylesheet" href="/css/style.css?v=3.8">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎭</text></svg>">
   <script>
     if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -22,58 +22,6 @@
 
   <!-- ═══ LOGIN SCREEN ═══════════════════════════════════════════ -->
   <div id="login-screen" class="login-screen" style="display:none">
-    <!-- Circular line moving background pattern -->
-    <div class="login-bg-pattern" aria-hidden="true">
-      <svg class="login-pattern-svg" viewBox="0 0 1000 1000" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <radialGradient id="login-ambient-glow" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stop-color="#6366f1" stop-opacity="0.14" />
-            <stop offset="60%" stop-color="#6366f1" stop-opacity="0.04" />
-            <stop offset="100%" stop-color="#6366f1" stop-opacity="0" />
-          </radialGradient>
-          <linearGradient id="orbit-grad-1" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#4f46e5" stop-opacity="0.6" />
-            <stop offset="50%" stop-color="#a855f7" stop-opacity="0.2" />
-            <stop offset="100%" stop-color="#06b6d4" stop-opacity="0.6" />
-          </linearGradient>
-          <linearGradient id="orbit-grad-2" x1="100%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.5" />
-            <stop offset="70%" stop-color="#6366f1" stop-opacity="0.15" />
-            <stop offset="100%" stop-color="#4f46e5" stop-opacity="0.5" />
-          </linearGradient>
-        </defs>
-
-        <!-- Ambient Center Radial Glow -->
-        <circle cx="500" cy="500" r="440" fill="url(#login-ambient-glow)" class="login-glow-pulse" />
-
-        <!-- Concentric Circular Lines -->
-        <circle class="circular-line ring-base ring-1" cx="500" cy="500" r="160" />
-        <circle class="circular-line ring-dashed ring-2" cx="500" cy="500" r="230" />
-        <circle class="circular-line ring-gradient ring-3" cx="500" cy="500" r="300" />
-        <circle class="circular-line ring-dense ring-4" cx="500" cy="500" r="375" />
-        <circle class="circular-line ring-gradient ring-5" cx="500" cy="500" r="450" />
-        <circle class="circular-line ring-outer ring-6" cx="500" cy="500" r="530" />
-
-        <!-- Moving Circular Arc Highlights -->
-        <circle class="circular-line ring-arc arc-1" cx="500" cy="500" r="230" />
-        <circle class="circular-line ring-arc arc-2" cx="500" cy="500" r="375" />
-        <circle class="circular-line ring-arc arc-3" cx="500" cy="500" r="450" />
-
-        <!-- Revolving Orbital Nodes -->
-        <g class="orbit-system orbit-speed-fast">
-          <circle cx="500" cy="270" r="4" class="orbit-dot dot-cyan" />
-          <circle cx="500" cy="730" r="3" class="orbit-dot dot-indigo" />
-        </g>
-        <g class="orbit-system orbit-speed-mid">
-          <circle cx="200" cy="500" r="4.5" class="orbit-dot dot-purple" />
-          <circle cx="800" cy="500" r="3.5" class="orbit-dot dot-cyan" />
-        </g>
-        <g class="orbit-system orbit-speed-slow">
-          <circle cx="500" cy="50" r="3.5" class="orbit-dot dot-indigo" />
-          <circle cx="500" cy="950" r="3" class="orbit-dot dot-purple" />
-        </g>
-      </svg>
-    </div>
     <div class="login-card">
       <div class="login-logo">
         <div class="login-logo-icon">🎭</div>
