@@ -228,6 +228,20 @@ Plus legacy: `assigned`, `on_leave`, `unavailable`
   - Browser refresh or direct bookmarking preserves the active page instead of resetting to dashboard.
   - Listens to `hashchange` for native browser Back/Forward navigation.
 
+### Resource Removal, Manager Attribution & Custom Checkbox UI (Completed)
+- **Individual & Bulk Resource Deletion**:
+  - Managers can remove their own resources individually (via 3-dots action menu or Dossier modal) or in bulk (via selection checkboxes + floating bulk bar).
+  - Leads have authority to remove any resource individually or in bulk.
+  - Backend endpoints (`DELETE /api/resources/:id` and `POST /api/resources/bulk-delete`) cleanly remove dependent records (`project_assignments`, `nominations`, `attendance`, `availability_log`, `payments`) and verify operational manager ownership if called by a non-lead.
+- **Lead All-Resources Manager Attribution**:
+  - In Lead view, the items list and grid display the name of the supervising manager from which each resource belongs (`👔 Manager Name` pill in row list and dedicated Manager attribute in card grid).
+  - In Manager view, the list remains clean without redundant self-attribution.
+- **Language Information Removal**:
+  - Spoken languages (`🗣️ Languages`) removed completely from the main resources list and card grid views for both managers and leads to reduce visual clutter and keep focus on operational availability, zone, and roles.
+- **Custom Premium Checkbox UI**:
+  - Replaced browser-native checkboxes with custom CSS vector-rendered checkboxes (`appearance: none`, smooth border radius, glowing focus ring on hover, brand accent background, and crisp angled vector checkmark).
+  - Fully integrated with AMOLED dark mode with glowing indigo accent states.
+
 ## Supabase PostgreSQL Migration (October 2026)
 - **Database Engine**: PostgreSQL 17 (Supabase)
 - **Supabase URL**: `https://idchfpwhkljerfcpvqvl.supabase.co`
