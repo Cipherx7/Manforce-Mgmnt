@@ -231,7 +231,7 @@ Plus legacy: `assigned`, `on_leave`, `unavailable`
 ## Supabase PostgreSQL Migration (October 2026)
 - **Database Engine**: PostgreSQL 17 (Supabase)
 - **Supabase URL**: `https://idchfpwhkljerfcpvqvl.supabase.co`
-- **Database Host**: `db.idchfpwhkljerfcpvqvl.supabase.co` (Port: `5432`, Database: `postgres`, User: `dvevents`)
+- **Database Host**: `aws-0-ap-northeast-1.pooler.supabase.com` (Port: `5432`, Database: `postgres`, User: `dvevents.idchfpwhkljerfcpvqvl`) — Supavisor IPv4/IPv6 dual-stack pooler for seamless local & serverless connectivity.
 - **Publishable Key**: `sb_publishable_4_l86iWh5eFBq_6yQQfU3g_hcE5yIV-`
 - **Driver**: Node `pg` (node-postgres connection pool with auto query adaptation, placeholder conversion, and transaction support)
 - **Aiven Removal**: Removed Aiven MySQL credentials from `.env`, uninstalled `mysql2` package, removed `aiven` MCP server from `~/.gemini/config/mcp_config.json`.

@@ -1,10 +1,10 @@
 // server.js - Manpower Management Platform
 // DV Events | Node.js + Express + PostgreSQL (Supabase)
 
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
 const compression = require('compression');
 const { testConnection } = require('./db');
 const { authenticate } = require('./middleware/auth');

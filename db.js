@@ -1,12 +1,12 @@
-// db.js - PostgreSQL connection pool for Supabase
 const { Pool } = require('pg');
-require('dotenv').config();
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '.env') });
 
 const isSsl = process.env.DB_SSL !== 'false';
 const poolConfig = {
-  host: process.env.DB_HOST || 'db.idchfpwhkljerfcpvqvl.supabase.co',
+  host: process.env.DB_HOST || 'aws-0-ap-northeast-1.pooler.supabase.com',
   port: parseInt(process.env.DB_PORT, 10) || 5432,
-  user: process.env.DB_USER || 'dvevents',
+  user: process.env.DB_USER || 'dvevents.idchfpwhkljerfcpvqvl',
   password: process.env.DB_PASSWORD || 'DvEvents2026_SecureDb!',
   database: process.env.DB_NAME || 'postgres',
   ssl: isSsl ? { rejectUnauthorized: false } : false,
