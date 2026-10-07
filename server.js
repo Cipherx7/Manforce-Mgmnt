@@ -27,7 +27,7 @@ app.use('/api/auth', require('./routes/auth'));
 
 // Health check (public)
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString(), service: 'DV Events Manpower Platform' });
+  res.json({ status: 'ok', timestamp: new Date().toISOString(), service: 'DV Events Resource Platform' });
 });
 
 // ─── Protected API Routes (JWT required) ────────────────────────────────────

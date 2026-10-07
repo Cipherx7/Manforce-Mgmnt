@@ -1145,7 +1145,7 @@ body {
   padding: 0 36px;
   position: sticky;
   top: 0;
-  z-index: 50;
+  z-index: 500;
   box-shadow: var(--shadow-xs);
   width: 100%;
   box-sizing: border-box;
@@ -5958,6 +5958,83 @@ td.menu-open,
   font-weight: 700;
 }
 
+/* ─── Bulk Actions Dropdown Menu ──────────────────────────────── */
+.bulk-actions-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.bulk-actions-menu {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  right: 0;
+  min-width: 210px;
+  background: rgba(255, 255, 255, 0.98);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  box-shadow: 0 16px 36px -6px rgba(15, 23, 42, 0.22), 0 4px 12px rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(20px);
+  padding: 6px;
+  z-index: 1050;
+  display: none;
+  flex-direction: column;
+  gap: 4px;
+  animation: popupFadeDown 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bulk-actions-menu.active {
+  display: flex;
+}
+
+.dark .bulk-actions-menu {
+  background: rgba(18, 18, 22, 0.96);
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 20px 48px -8px rgba(0, 0, 0, 0.95), inset 0 1px 1px rgba(255, 255, 255, 0.12);
+}
+
+.bulk-action-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.14s ease;
+  box-sizing: border-box;
+}
+
+.bulk-action-item:hover {
+  background: rgba(99, 102, 241, 0.08);
+  color: var(--accent);
+}
+
+.dark .bulk-action-item:hover {
+  background: rgba(99, 102, 241, 0.18);
+  color: #a5b4fc;
+}
+
+.bulk-action-item.danger {
+  color: #ef4444;
+}
+
+.bulk-action-item.danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+}
+
+.dark .bulk-action-item.danger:hover {
+  background: rgba(239, 68, 68, 0.16);
+  color: #f87171;
+}
+
 @media (max-width: 768px) {
   .bulk-action-bar {
     bottom: 74px !important;
@@ -6019,7 +6096,7 @@ td.menu-open,
   }
 }
 
-/* ─── Modern Premium Custom Checkbox UI ──────────────────────── */
+/* ─── Modern Premium Square Checkbox UI ──────────────────────── */
 .resource-select-cb,
 .multi-filter-item input[type="checkbox"] {
   appearance: none;
@@ -6027,7 +6104,7 @@ td.menu-open,
   width: 18px;
   height: 18px;
   border: 1.5px solid #cbd5e1;
-  border-radius: 5px;
+  border-radius: 2px;
   background-color: #ffffff;
   cursor: pointer;
   display: inline-flex;
@@ -6036,7 +6113,7 @@ td.menu-open,
   margin: 0;
   vertical-align: middle;
   position: relative;
-  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.15s ease;
   flex-shrink: 0;
   box-sizing: border-box;
 }
@@ -6052,24 +6129,17 @@ td.menu-open,
 .multi-filter-item input[type="checkbox"]:checked {
   background-color: var(--accent);
   border-color: var(--accent);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='none' stroke='white' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='3.5 8.5 6.5 11.5 12.5 5.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 11px 11px;
   box-shadow: 0 2px 6px rgba(99, 102, 241, 0.35);
-}
-
-.resource-select-cb:checked::after,
-.multi-filter-item input[type="checkbox"]:checked::after {
-  content: '';
-  display: block;
-  width: 4px;
-  height: 8px;
-  border: solid #ffffff;
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg) translate(-0.5px, -0.5px);
 }
 
 .dark .resource-select-cb,
 .dark .multi-filter-item input[type="checkbox"] {
-  border-color: rgba(255, 255, 255, 0.22);
-  background-color: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.26);
+  background-color: rgba(255, 255, 255, 0.06);
 }
 
 .dark .resource-select-cb:hover,
@@ -6083,12 +6153,11 @@ td.menu-open,
 .dark .multi-filter-item input[type="checkbox"]:checked {
   background-color: #6366f1;
   border-color: #6366f1;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='none' stroke='white' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='3.5 8.5 6.5 11.5 12.5 5.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 11px 11px;
   box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
-}
-
-.dark .resource-select-cb:checked::after,
-.dark .multi-filter-item input[type="checkbox"]:checked::after {
-  border-color: #ffffff;
 }
 
 .selected-resource {

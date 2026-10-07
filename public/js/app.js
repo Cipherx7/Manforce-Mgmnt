@@ -349,7 +349,7 @@ function generateCategoryPieSVG(categories, totalStaff, isDonut = true) {
   // Filter to categories with count > 0
   const activeCats = categories.filter(c => (parseInt(c.total, 10) || 0) > 0);
   if (!activeCats.length) {
-    return `<div style="padding:40px;text-align:center;color:var(--text-muted)">No manpower recorded</div>`;
+    return `<div style="padding:40px;text-align:center;color:var(--text-muted)">No resources recorded</div>`;
   }
 
   let currentAngle = -90; // Start at 12 o'clock
@@ -413,7 +413,7 @@ function generateCategoryPieSVG(categories, totalStaff, isDonut = true) {
       ${isDonut ? `
         <div id="pie-center-content" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;width:120px">
           <div id="pie-center-val" style="font-size:1.85rem;font-weight:700;color:var(--text-primary);line-height:1.1;font-feature-settings:'tnum' 1">${totalStaff}</div>
-          <div id="pie-center-lbl" style="font-size:0.72rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);letter-spacing:0.8px;margin-top:2px">Total Staff</div>
+          <div id="pie-center-lbl" style="font-size:0.72rem;font-weight:600;text-transform:uppercase;color:var(--text-muted);letter-spacing:0.8px;margin-top:2px">Total Resources</div>
         </div>
       ` : ''}
     </div>
@@ -450,7 +450,7 @@ function handlePieLeave() {
     const total = state.dashboardData?.overview?.total_resources || state.resources?.length || '0';
     valEl.textContent = total;
     valEl.style.fontSize = '1.85rem';
-    lblEl.textContent = 'Total Staff';
+    lblEl.textContent = 'Total Resources';
   }
   document.querySelectorAll('.pie-slice').forEach(s => {
     s.style.opacity = '1';
@@ -487,7 +487,7 @@ function toggleCategoryViewMode() {
   }
 }
 
-function renderCategoryPieSection(categories, totalStaff, sectionTitle = '🥧 Manpower by Category (Pie Chart)') {
+function renderCategoryPieSection(categories, totalStaff, sectionTitle = '🥧 Resources by Category (Pie Chart)') {
   const activeCats = categories.filter(c => (parseInt(c.total, 10) || 0) > 0);
 
   return `
@@ -620,7 +620,7 @@ async function loadDashboard() {
           ${auth.can('edit_resources') ? `
           <button type="button" class="mobile-action-btn secondary" onclick="openQuickWorkerModal()">
             <span class="m-btn-icon">➕</span>
-            <span>Add Staff</span>
+            <span>Add Resource</span>
           </button>` : ''}
           ${auth.can('edit_projects') ? `
           <button type="button" class="mobile-action-btn secondary" onclick="openQuickProjectModal()">
@@ -637,7 +637,7 @@ async function loadDashboard() {
             Operations Command Center
           </h2>
           <p class="text-muted" style="margin-top:2px">
-            Live manpower visibility & deployment tracking across all active events.
+            Live resource visibility & deployment tracking across all active events.
           </p>
         </div>
         <div class="flex gap-2">
@@ -646,24 +646,24 @@ async function loadDashboard() {
         </div>
       </div>
 
-      <!-- Pulse Metrics: Know Manpower Situation in Seconds -->
+      <!-- Pulse Metrics: Know Resource Situation in Seconds -->
       <div class="stats-grid">
         <!-- Available (The Bench) -->
-        <div class="stat-card success" style="cursor:pointer" onclick="filterAndGoResources('available')" title="Click to view available workers">
+        <div class="stat-card success" style="cursor:pointer" onclick="filterAndGoResources('available')" title="Click to view available resources">
           <div class="stat-label">Available Bench</div>
           <div class="stat-value" style="color:var(--success)">${avail}</div>
           <div class="stat-sub">Ready for immediate deployment</div>
           ${auth.can('edit_assignments') ? `
           <div style="margin-top:10px">
-            <span class="btn btn-sm btn-success" style="padding:3px 10px;font-size:0.75rem">⚡ Deploy Staff →</span>
+            <span class="btn btn-sm btn-success" style="padding:3px 10px;font-size:0.75rem">⚡ Deploy Resources →</span>
           </div>` : ''}
         </div>
 
         <!-- Assigned / Active Deployments -->
-        <div class="stat-card accent" style="cursor:pointer" onclick="filterAndGoResources('assigned')" title="Click to view deployed workers">
+        <div class="stat-card accent" style="cursor:pointer" onclick="filterAndGoResources('assigned')" title="Click to view deployed resources">
           <div class="stat-label">Currently Deployed</div>
           <div class="stat-value" style="color:var(--accent)">${asgn}</div>
-          <div class="stat-sub">${utilPct}% of total manpower active</div>
+          <div class="stat-sub">${utilPct}% of total resources active</div>
           <div style="margin-top:10px">
             ${progressBar(asgn, total)}
           </div>
@@ -683,9 +683,9 @@ async function loadDashboard() {
           <div class="stat-sub">Off-duty / inactive</div>
         </div>
 
-        <!-- Total Staff Capacity -->
+        <!-- Total Resource Capacity -->
         <div class="stat-card" style="cursor:pointer" onclick="filterAndGoResources('all')">
-          <div class="stat-label">Total Manpower</div>
+          <div class="stat-label">Total Resources</div>
           <div class="stat-value">${total}</div>
           <div class="stat-sub">${project_stats.active} active · ${project_stats.planned} planned projects</div>
         </div>
@@ -713,10 +713,10 @@ async function loadDashboard() {
                 <span style="font-size:1.15rem">⚠️</span>
                 <div>
                   <div style="font-weight:700;font-size:0.98rem;color:var(--text-primary)">
-                    Staffing Deficit Alert (Project-Wise)
+                    Resource Deficit Alert (Project-Wise)
                   </div>
                   <div class="text-muted text-xs" style="margin-top:2px">
-                    ${projectsWithDeficits.length} event project${projectsWithDeficits.length > 1 ? 's have' : ' has'} unfilled manpower requirements
+                    ${projectsWithDeficits.length} event project${projectsWithDeficits.length > 1 ? 's have' : ' has'} unfilled resource requirements
                   </div>
                 </div>
               </div>
@@ -728,7 +728,7 @@ async function loadDashboard() {
                     <tr>
                       <th style="width:25%">Event / Project</th>
                       <th style="width:22%">Client &amp; Location</th>
-                      <th style="width:20%">Staffing Level</th>
+                      <th style="width:20%">Resource Level</th>
                       <th style="width:23%">Deficit by Role</th>
                       <th style="width:10%;text-align:right">Action</th>
                     </tr>
@@ -750,7 +750,7 @@ async function loadDashboard() {
                         <td>
                           <div class="flex items-center gap-2">
                             <span class="badge" style="background:rgba(239, 68, 68, 0.15);color:#ef4444;font-weight:700;font-size:0.78rem">
-                              Deficit: ${p.deficit} Staff
+                              Deficit: ${p.deficit} Resources
                             </span>
                           </div>
                           <div class="text-muted text-xs" style="margin-top:4px">
@@ -788,7 +788,7 @@ async function loadDashboard() {
         <div class="card-header">
           <div class="card-title">
             <span>📍 Active Deployments &amp; Locations</span>
-            <span class="text-muted text-sm" style="font-weight:400">Where staff is deployed right now</span>
+            <span class="text-muted text-sm" style="font-weight:400">Where resources are deployed right now</span>
           </div>
           <button class="btn btn-sm btn-secondary" onclick="navigate('projects')">View All Projects →</button>
         </div>
@@ -813,7 +813,7 @@ async function loadDashboard() {
 
                   <div class="deployment-meter">
                     <div class="deployment-meter-header">
-                      <span style="color:var(--text-secondary)">Staffing Level</span>
+                      <span style="color:var(--text-secondary)">Resource Level</span>
                       <span class="font-mono" style="color:${(p.deficit && p.deficit > 0) ? '#ef4444' : 'var(--accent)'}">
                         ${p.total_required > 0 ? `${p.assigned_count} / ${p.total_required} Filled` : `${p.assigned_count} Assigned`}
                       </span>
@@ -846,11 +846,11 @@ async function loadDashboard() {
         </div>
       </div>
 
-      <!-- Manpower By Category (Interactive Pie / Donut Chart with Mobile Collapse) -->
+      <!-- Resource Distribution By Category (Interactive Pie / Donut Chart with Mobile Collapse) -->
       <div class="mobile-analytics-toggle" id="mobile-analytics-toggle" onclick="toggleMobileAnalytics()">
         <div class="flex items-center gap-2">
           <span style="font-size:1.15rem">📊</span>
-          <span>Manpower Distribution &amp; Category Analytics</span>
+          <span>Resource Distribution &amp; Category Analytics</span>
         </div>
         <span id="mobile-analytics-chevron" style="transition:transform 0.2s">▼</span>
       </div>
@@ -870,7 +870,7 @@ async function loadDashboard() {
               <thead>
                 <tr>
                   <th>Time</th>
-                  <th>Worker</th>
+                  <th>Resource</th>
                   <th>Action / Transition</th>
                   <th>Manager</th>
                   <th>Deployment Notes</th>
@@ -919,12 +919,12 @@ function quickFillGap(projectName, categoryName) {
   state.resourceFilter.category_id = cat ? cat.id : '';
   state.resourceFilter.status = 'available';
   navigate('resources');
-  toast(`Showing available ${categoryName} staff for "${projectName}"`, 'info');
+  toast(`Showing available ${categoryName} resources for "${projectName}"`, 'info');
 }
 
 function renderMobileBenchList(benchStaff) {
   if (!benchStaff || !benchStaff.length) {
-    return `<div style="padding:14px;background:var(--bg-hover);border-radius:10px;text-align:center;font-size:0.82rem;color:var(--text-muted)">No workers currently on the bench.</div>`;
+    return `<div style="padding:14px;background:var(--bg-hover);border-radius:10px;text-align:center;font-size:0.82rem;color:var(--text-muted)">No resources currently on the bench.</div>`;
   }
   return benchStaff.map(r => `
     <div class="mobile-bench-item">
@@ -933,7 +933,7 @@ function renderMobileBenchList(benchStaff) {
         <div style="min-width:0;flex:1">
           <div class="mobile-bench-name">${escapeHtml(r.name)}</div>
           <div class="mobile-bench-meta">
-            <span>${escapeHtml(r.category_name || 'Staff')}</span>
+            <span>${escapeHtml(r.category_name || 'Resource')}</span>
             ${r.contact_info ? `<span>· 📞 ${escapeHtml(r.contact_info)}</span>` : ''}
           </div>
         </div>
@@ -966,7 +966,7 @@ function toggleMobileAnalytics() {
 
 async function openQuickDeployModal(preselectedWorkerId = null, preselectedProjectId = null) {
   if (!auth.can('edit_assignments')) {
-    toast('Access restricted: You do not have permission to deploy personnel.', 'error');
+    toast('Access restricted: You do not have permission to deploy resources.', 'error');
     return;
   }
   if (!state.resources.length || !state.projects.length) {
@@ -984,15 +984,15 @@ async function openQuickDeployModal(preselectedWorkerId = null, preselectedProje
 
   form.innerHTML = `
     <div class="form-group">
-      <label class="form-label" style="font-weight:600">1. Select Ready Worker *</label>
+      <label class="form-label" style="font-weight:600">1. Select Ready Resource *</label>
       <select id="qd-worker" class="form-input" style="font-size:16px">
-        <option value="">-- Choose Personnel --</option>
+        <option value="">-- Choose Resource --</option>
         ${state.resources.map(r => {
           const isSelected = preselectedWorkerId && String(r.id) === String(preselectedWorkerId);
           const isAvail = r.status === 'available';
           return `
             <option value="${r.id}" ${isSelected ? 'selected' : (!isAvail ? 'disabled' : '')}>
-              ${isAvail ? '🟢' : '⛔'} ${r.name} (${r.category_name || 'Staff'})${!isAvail ? ` [${r.status}]` : ''}
+              ${isAvail ? '🟢' : '⛔'} ${r.name} (${r.category_name || 'Resource'})${!isAvail ? ` [${r.status}]` : ''}
             </option>
           `;
         }).join('')}
@@ -1028,7 +1028,7 @@ async function openQuickDeployModal(preselectedWorkerId = null, preselectedProje
       const role_on_project = document.getElementById('qd-role')?.value.trim();
 
       if (!resource_id || !project_id) {
-        toast('Please select both a worker and a project', 'error');
+        toast('Please select both a resource and a project', 'error');
         return;
       }
 
@@ -1038,10 +1038,10 @@ async function openQuickDeployModal(preselectedWorkerId = null, preselectedProje
         await api('/assignments', 'POST', {
           resource_id,
           project_id,
-          role_on_project: role_on_project || 'On-Site Staff',
+          role_on_project: role_on_project || 'On-Site Resource',
           notes: 'Quick mobile allocation'
         });
-        toast('⚡ Worker deployed to project successfully!', 'success');
+        toast('⚡ Resource deployed to project successfully!', 'success');
         closeModal('quick-deploy-modal');
         if (state.currentPage === 'dashboard') loadDashboard();
         else if (state.currentPage === 'assignments') loadAssignments();
@@ -1400,7 +1400,7 @@ function renderResourceOperationsView() {
           Resources Directory
         </h2>
         <p class="text-muted text-sm">
-          Operational manpower pool with real-time availability and single-deployment controls.
+          Operational resource pool with real-time availability and single-deployment controls.
         </p>
       </div>
       ${canEditRes ? `
@@ -1415,14 +1415,14 @@ function renderResourceOperationsView() {
               <span class="add-menu-icon">➕</span>
               <div class="add-menu-text">
                 <div class="add-menu-title">Add Manually</div>
-                <div class="add-menu-desc">Fill out worker details &amp; credentials</div>
+                <div class="add-menu-desc">Fill out resource details &amp; credentials</div>
               </div>
             </button>
             <button type="button" class="resource-add-menu-item" onclick="navigate('resource-import'); closeAddResourceDropdown();">
               <span class="add-menu-icon">📥</span>
               <div class="add-menu-text">
                 <div class="add-menu-title">Import Excel / CSV</div>
-                <div class="add-menu-desc">Bulk upload workers via spreadsheet</div>
+                <div class="add-menu-desc">Bulk upload resources via spreadsheet</div>
               </div>
             </button>
           </div>
@@ -1433,7 +1433,7 @@ function renderResourceOperationsView() {
     <!-- Availability Filter Pills (Clean & Professional) -->
     <div class="pill-filter-group" style="overflow-x:auto;padding-bottom:4px">
       <span class="filter-pill ${rFilter.status === 'all' ? 'active' : ''}" onclick="setResourceStatusFilter('all')">
-        All Personnel (${total})
+        All Resources (${total})
       </span>
       <span class="filter-pill active-success ${rFilter.status === 'available' ? 'active' : ''}" onclick="setResourceStatusFilter('available')">
         Available (${availCount})
@@ -1728,7 +1728,7 @@ function renderResourceOperationsView() {
           Select All (${filtered.length})
         </label>
         <span class="text-sm text-muted">
-          Showing <strong>${filtered.length}</strong> of ${total} workers
+          Showing <strong>${filtered.length}</strong> of ${total} resources
           ${rFilter.status !== 'all' ? `· Status: <strong style="text-transform:capitalize">${rFilter.status}</strong>` : ''}
           ${rFilter.zone ? `· Zone: <strong>${escapeHtml(rFilter.zone)}</strong>` : ''}
           ${rFilter.availability ? `· Availability: <strong>${escapeHtml(rFilter.availability)}</strong>` : ''}
@@ -1741,7 +1741,7 @@ function renderResourceOperationsView() {
       </div>
       ${state.selectedResourceIds.size > 0 ? `
         <div class="text-sm font-semibold" style="color:var(--accent)">
-          ${state.selectedResourceIds.size} worker${state.selectedResourceIds.size > 1 ? 's' : ''} selected
+          ${state.selectedResourceIds.size} resource${state.selectedResourceIds.size > 1 ? 's' : ''} selected
         </div>
       ` : ''}
     </div>
@@ -1752,7 +1752,7 @@ function renderResourceOperationsView() {
         rFilter.viewMode === 'list' ? renderOpsRowList(filtered) : renderOpsCardGrid(filtered)
       ) : `
         <div class="card" style="padding:48px 24px;text-align:center">
-          ${emptyState('No manpower matching your current filters.')}
+          ${emptyState('No resources matching your current filters.')}
           <div style="margin-top:12px">
             <button class="btn btn-sm btn-secondary" onclick="resetResourceFilters()">Reset All Filters</button>
           </div>
@@ -1765,19 +1765,26 @@ function renderResourceOperationsView() {
       <div id="bulk-action-bar" class="bulk-action-bar">
         <span class="bulk-count-badge">${state.selectedResourceIds.size}</span>
         <span style="font-weight:600;font-size:0.88rem;color:var(--text-primary)">
-          ${state.selectedResourceIds.size} personnel selected
+          ${state.selectedResourceIds.size} resources selected
         </span>
-        ${auth.can('edit_assignments') ? `
-          <button class="btn btn-sm btn-primary" onclick="openBulkAssignModal()" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;box-shadow:0 2px 8px rgba(99,102,241,0.4)">
-            <span>⚡</span> Bulk Deploy
+        <div class="bulk-actions-wrap" id="bulk-actions-wrap">
+          <button class="btn btn-sm btn-primary" id="bulk-actions-btn" onclick="toggleBulkActionsMenu(event)" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px;box-shadow:0 2px 8px rgba(99,102,241,0.4)">
+            <span>⚡</span> Bulk Actions ▾
           </button>
-        ` : ''}
-        ${auth.can('edit_resources') ? `
-          <button class="btn btn-sm btn-danger" onclick="bulkDeleteSelectedResources()" style="display:inline-flex;align-items:center;gap:6px;padding:6px 14px">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-            <span>Delete Selected (${state.selectedResourceIds.size})</span>
-          </button>
-        ` : ''}
+          <div class="bulk-actions-menu" id="bulk-actions-menu">
+            ${auth.can('edit_assignments') ? `
+              <button type="button" class="bulk-action-item" onclick="openBulkAssignModal(); closeBulkActionsMenu();">
+                <span>⚡</span> Bulk Deploy to Project
+              </button>
+            ` : ''}
+            ${auth.can('edit_resources') ? `
+              <button type="button" class="bulk-action-item danger" onclick="bulkDeleteSelectedResources(); closeBulkActionsMenu();">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                <span>Delete Selected (${state.selectedResourceIds.size})</span>
+              </button>
+            ` : ''}
+          </div>
+        </div>
         <button class="btn btn-sm btn-secondary" onclick="clearResourceSelection()" style="padding:6px 10px">
           ✕ Clear
         </button>
@@ -2203,12 +2210,23 @@ async function deleteResourceConfirm(resourceId, resourceName) {
   if (!confirm(`Are you sure you want to permanently delete "${resourceName}"? This cannot be undone.`)) return;
   try {
     await api(`/resources/${resourceId}`, 'DELETE');
-    toast(`Worker "${resourceName}" removed successfully.`, 'success');
+    toast(`Resource "${resourceName}" removed successfully.`, 'success');
     state.selectedResourceIds.delete(resourceId);
     loadResources();
   } catch (err) {
     toast(err.message || 'Failed to delete resource.', 'error');
   }
+}
+
+function toggleBulkActionsMenu(e) {
+  if (e) e.stopPropagation();
+  const menu = document.getElementById('bulk-actions-menu');
+  if (menu) menu.classList.toggle('active');
+}
+
+function closeBulkActionsMenu() {
+  const menu = document.getElementById('bulk-actions-menu');
+  if (menu) menu.classList.remove('active');
 }
 
 async function bulkDeleteSelectedResources() {
@@ -2218,16 +2236,16 @@ async function bulkDeleteSelectedResources() {
   }
   const count = state.selectedResourceIds.size;
   if (!count) {
-    toast('No personnel selected for deletion.', 'info');
+    toast('No resources selected for deletion.', 'info');
     return;
   }
-  if (!confirm(`Are you sure you want to permanently delete these ${count} selected personnel? This cannot be undone.`)) {
+  if (!confirm(`Are you sure you want to permanently delete these ${count} selected resources? This cannot be undone.`)) {
     return;
   }
   try {
     const ids = Array.from(state.selectedResourceIds);
     const res = await api('/resources/bulk-delete', 'POST', { ids });
-    toast(res.message || `Successfully removed ${count} personnel.`, 'success');
+    toast(res.message || `Successfully removed ${count} resources.`, 'success');
     state.selectedResourceIds.clear();
     loadResources();
   } catch (err) {
@@ -2470,35 +2488,31 @@ function clearResourceSelection() {
 // ─── Bulk Deploy to Project Modal ──────────────────────────────
 async function openBulkAssignModal() {
   if (!auth.can('edit_assignments')) {
-    toast('Access restricted: You do not have permission to deploy personnel.', 'error');
+    toast('Access restricted: You do not have permission to deploy resources.', 'error');
     return;
   }
   const selectedWorkers = state.resources.filter(r => state.selectedResourceIds.has(Number(r.id)));
   if (!selectedWorkers.length) {
-    toast('No personnel selected for bulk deployment.', 'warning');
+    toast('No resources selected for bulk deployment.', 'warning');
     return;
   }
 
   // Ensure active projects are loaded
-  if (!state.projects.length || !state.managers.length) {
-    const [{ data: projects }, { data: managers }] = await Promise.all([
-      api('/projects?status=active'),
-      api('/managers')
-    ]);
-    state.projects = projects;
-    state.managers = managers;
+  if (!state.projects.length) {
+    const { data: projects } = await api('/projects?status=active');
+    state.projects = projects || [];
   }
 
   const activeProjects = state.projects.filter(p => ['active', 'planned'].includes(p.status));
 
   const titleEl = $('#bulk-assign-title');
-  if (titleEl) titleEl.textContent = `⚡ Bulk Deploy (${selectedWorkers.length}) Personnel`;
+  if (titleEl) titleEl.textContent = `⚡ Bulk Deploy (${selectedWorkers.length}) Resources`;
 
   $('#bulk-assign-form').innerHTML = `
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:16px">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
         <span style="font-size:0.85rem;font-weight:600;color:var(--text-primary)">
-          Selected Staff Members (${selectedWorkers.length}):
+          Selected Resources (${selectedWorkers.length}):
         </span>
       </div>
       <div style="display:flex;flex-wrap:wrap;gap:6px;max-height:130px;overflow-y:auto;padding-right:4px">
@@ -2506,7 +2520,7 @@ async function openBulkAssignModal() {
           <span style="display:inline-flex;align-items:center;gap:6px;padding:4px 8px;background:var(--bg-hover);border:1px solid var(--border);border-radius:6px;font-size:0.78rem">
             <span style="width:8px;height:8px;border-radius:50%;background:${w.status === 'available' ? 'var(--success)' : 'var(--warning)'}"></span>
             <strong>${escapeHtml(w.name)}</strong>
-            <span style="color:var(--text-muted)">(${escapeHtml(w.category_name || 'Staff')})</span>
+            <span style="color:var(--text-muted)">(${escapeHtml(w.category_name || 'Resource')})</span>
           </span>
         `).join('')}
       </div>
@@ -2524,18 +2538,9 @@ async function openBulkAssignModal() {
       </select>
     </div>
 
-    <div class="form-row">
-      <div class="form-group">
-        <label>Deploying Manager</label>
-        <select id="bulk-assign-by">
-          <option value="">Select Manager</option>
-          ${state.managers.map(m => `<option value="${m.id}">${m.name}</option>`).join('')}
-        </select>
-      </div>
-      <div class="form-group">
-        <label>Deployment Note / Batch Tag</label>
-        <input type="text" id="bulk-assign-notes" placeholder="e.g. VIP Event Squad A">
-      </div>
+    <div class="form-group">
+      <label>Deployment Note / Batch Tag</label>
+      <input type="text" id="bulk-assign-notes" placeholder="e.g. VIP Event Squad A">
     </div>
   `;
 
@@ -2545,7 +2550,6 @@ async function openBulkAssignModal() {
 
 async function submitBulkAssignment() {
   const project_id = $('#bulk-assign-project')?.value;
-  const assigned_by = $('#bulk-assign-by')?.value;
   const notes = $('#bulk-assign-notes')?.value;
   const resource_ids = Array.from(state.selectedResourceIds);
 
@@ -2554,28 +2558,28 @@ async function submitBulkAssignment() {
     return;
   }
   if (!resource_ids.length) {
-    toast('No personnel selected', 'error');
+    toast('No resources selected', 'error');
     return;
   }
 
   const btn = $('#bulk-assign-save');
   btn.disabled = true;
-  btn.textContent = 'Deploying personnel…';
+  btn.textContent = 'Deploying resources…';
 
   try {
     const res = await api('/assignments/bulk-assign', 'POST', {
       project_id,
       resource_ids,
-      assigned_by: assigned_by || null,
+      assigned_by: auth.user?.manager_id || null,
       notes: notes || null
     });
 
-    toast(res.message || `Successfully deployed ${res.assigned_count} personnel`, 'success');
+    toast(res.message || `Successfully deployed ${res.assigned_count} resources`, 'success');
     closeModal('bulk-assign-modal');
     state.selectedResourceIds.clear();
     loadResources();
   } catch (err) {
-    toast(err.message || 'Failed to bulk deploy personnel', 'error');
+    toast(err.message || 'Failed to bulk deploy resources', 'error');
   } finally {
     btn.disabled = false;
     btn.textContent = '⚡ Confirm Bulk Deployment';
@@ -2594,7 +2598,7 @@ function escapeHtml(str) {
 // Direct 1-Click Release Action
 async function quickReleaseWorker(resourceId, workerName, projectName) {
   if (!auth.can('edit_assignments')) {
-    toast('Access restricted: You do not have permission to release personnel.', 'error');
+    toast('Access restricted: You do not have permission to release resources.', 'error');
     return;
   }
   if (!confirm(`Release ${workerName} from "${projectName}"?\nThey will immediately become Available on the bench.`)) {
@@ -2616,7 +2620,7 @@ async function quickReleaseWorker(resourceId, workerName, projectName) {
 // Open Fast Quick-Assign Modal
 async function openAssignModal(preselectedResourceId = null, preselectedProjectId = null) {
   if (!auth.can('edit_assignments')) {
-    toast('Access restricted: You do not have permission to deploy personnel.', 'error');
+    toast('Access restricted: You do not have permission to deploy resources.', 'error');
     return;
   }
   // Ensure we have active projects and resources loaded
@@ -2662,7 +2666,7 @@ async function openAssignModal(preselectedResourceId = null, preselectedProjectI
           </div>
           <div style="font-size:0.78rem;color:var(--text-muted);margin-top:2px">
             <span>ID: <strong>${escapeHtml(preselectedWorker.staff_id || ('#RES-' + preselectedWorker.id))}</strong></span> · 
-            <span>Role: <strong>${escapeHtml(preselectedWorker.category_name || 'Staff')}</strong></span>
+            <span>Role: <strong>${escapeHtml(preselectedWorker.category_name || 'Resource')}</strong></span>
             ${preselectedWorker.current_project_name ? ` · <span style="color:var(--warning)">Current: ${escapeHtml(preselectedWorker.current_project_name)}</span>` : ''}
           </div>
         </div>
@@ -2670,14 +2674,14 @@ async function openAssignModal(preselectedResourceId = null, preselectedProjectI
     ` : `
       <!-- General Selection Dropdown (Only when opened with no worker preselected) -->
       <div class="form-group">
-        <label>Select Worker</label>
+        <label>Select Resource</label>
         <select id="assign-resource" onchange="validateAssignmentWorker(this.value)">
-          <option value="">-- Choose Personnel --</option>
+          <option value="">-- Choose Resource --</option>
           ${state.resources.map(r => {
             const statusIcon = r.status === 'available' ? '🟢' : r.status === 'assigned' ? '🟣' : '🟠';
             const deployTag = r.current_project_name ? ` (Deployed @ ${r.current_project_name})` : '';
             return `<option value="${r.id}">
-              ${statusIcon} ${r.name} — ${r.category_name || 'Staff'}${deployTag}
+              ${statusIcon} ${r.name} — ${r.category_name || 'Resource'}${deployTag}
             </option>`;
           }).join('')}
         </select>
@@ -2828,7 +2832,7 @@ async function submitAssignment() {
 // ─── Reassign Modal (Fast Atomic Project Transfer) ─────────────
 async function openReassignModal(resourceId) {
   if (!auth.can('edit_assignments')) {
-    toast('Access restricted: You do not have permission to reassign personnel.', 'error');
+    toast('Access restricted: You do not have permission to reassign resources.', 'error');
     return;
   }
   const worker = state.resources.find(r => String(r.id) === String(resourceId));
@@ -2838,7 +2842,7 @@ async function openReassignModal(resourceId) {
 
   $('#reassign-form').innerHTML = `
     <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:16px">
-      <div style="font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);font-weight:600">Personnel</div>
+      <div style="font-size:0.75rem;text-transform:uppercase;color:var(--text-muted);font-weight:600">Resource</div>
       <div style="font-size:1.05rem;font-weight:700;color:var(--text-primary);margin-top:2px">
         ${worker.name} <span class="badge" style="background:var(--accent-light);color:var(--accent)">${worker.category_name}</span>
       </div>
@@ -2975,7 +2979,7 @@ function renderProjectsView() {
         <h2 style="font-size:1.35rem;font-weight:700;color:var(--text-primary)">
           Project Deployments
         </h2>
-        <p class="text-muted text-sm">Site staffing requirements, schedules, and active manpower delivery.</p>
+        <p class="text-muted text-sm">Site resource requirements, schedules, and active resource delivery.</p>
       </div>
       ${canEditProj ? `
         <button class="btn btn-primary" onclick="openProjectModal()">
@@ -3094,7 +3098,7 @@ function renderProjectRowList(projects) {
             <!-- Staffing Allocation Meter -->
             <div class="prj-staffing-meter">
               <div class="prj-staff-text">
-                <span>Staffing</span>
+                <span>Resources</span>
                 <span style="color:var(--accent);font-variant-numeric:tabular-nums">${p.total_assigned || 0} Deployed</span>
               </div>
               ${progressBar(p.total_assigned || 0, Math.max(p.total_assigned || 0, 1))}
@@ -3122,7 +3126,7 @@ function renderProjectRowList(projects) {
                   ${canDeploy ? `
                     <button type="button" class="user-dropdown-item" onclick="openAssignModal(null, ${p.id})">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                      <span>Allocate Personnel</span>
+                      <span>Allocate Resources</span>
                     </button>
                   ` : ''}
                   ${canEditProj ? `
@@ -3203,7 +3207,7 @@ function renderProjectCardGrid(projects) {
                         ${canDeploy ? `
                           <button type="button" class="user-dropdown-item" onclick="openAssignModal(null, ${p.id})">
                             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                            <span>Allocate Personnel</span>
+                            <span>Allocate Resources</span>
                           </button>
                         ` : ''}
                         ${canEditProj ? `
@@ -3233,7 +3237,7 @@ function renderProjectCardGrid(projects) {
 
             <div class="prj-staffing-meter">
               <div class="prj-staff-text">
-                <span class="text-muted text-xs">Staffing Deployed</span>
+                <span class="text-muted text-xs">Resources Deployed</span>
                 <span class="text-xs" style="color:var(--accent)">${p.total_assigned || 0} On-Site</span>
               </div>
               ${progressBar(p.total_assigned || 0, Math.max(p.total_assigned || 0, 1))}
@@ -3351,7 +3355,7 @@ async function deleteProjectConfirm(projectId, projectName) {
     toast('Access restricted. You do not have permission to delete projects.', 'error');
     return;
   }
-  if (!confirm(`Are you sure you want to delete project "${projectName}"? This will unassign any active staff on this project.`)) return;
+  if (!confirm(`Are you sure you want to delete project "${projectName}"? This will unassign any active resources on this project.`)) return;
   try {
     await api(`/projects/${projectId}`, 'DELETE');
     toast(`Project "${projectName}" deleted successfully.`, 'success');
@@ -3380,7 +3384,7 @@ async function exportProjectPDF(projectId) {
         <td>${r.category || '—'}</td>
         <td style="text-align:center">${r.required}</td>
         <td style="text-align:center">${r.assigned}</td>
-        <td style="text-align:center;color:${r.gap > 0 ? '#c0392b' : '#1a7a3a'};font-weight:600">${r.gap > 0 ? `-${r.gap} needed` : 'Staffed'}</td>
+        <td style="text-align:center;color:${r.gap > 0 ? '#c0392b' : '#1a7a3a'};font-weight:600">${r.gap > 0 ? `-${r.gap} needed` : 'Fulfilled'}</td>
       </tr>
     `).join('');
 
@@ -3428,7 +3432,7 @@ async function exportProjectPDF(projectId) {
   <div class="header">
     <div>
       <div class="logo">DV <span>Events</span></div>
-      <div style="font-size:11px;color:#888;margin-top:2px">Project Dossier &amp; Staff Deployment Report</div>
+      <div style="font-size:11px;color:#888;margin-top:2px">Project Dossier &amp; Resource Deployment Report</div>
     </div>
     <div style="text-align:right">
       <div class="status-pill">${statusLabel}</div>
@@ -3446,26 +3450,26 @@ async function exportProjectPDF(projectId) {
     <div class="meta-box"><div class="meta-label">End Date</div><div class="meta-val">${p.end_date ? new Date(p.end_date).toLocaleDateString('en-IN', {day:'2-digit',month:'long',year:'numeric'}) : '—'}</div></div>
     <div class="meta-box"><div class="meta-label">Duration</div><div class="meta-val">${durDays ? `${durDays} Day${durDays > 1 ? 's' : ''}` : '—'}</div></div>
     <div class="meta-box"><div class="meta-label">Active Deployed</div><div class="meta-val">${activeStaff.length}</div></div>
-    <div class="meta-box"><div class="meta-label">Total Personnel</div><div class="meta-val">${allStaff.length}</div></div>
+    <div class="meta-box"><div class="meta-label">Total Resources</div><div class="meta-val">${allStaff.length}</div></div>
   </div>
 
   ${p.notes ? `<div style="background:#f7f7f7;border-radius:6px;padding:10px 14px;margin-bottom:20px;font-size:12px"><strong>Notes:</strong> ${p.notes}</div>` : ''}
 
   ${(p.requirements || []).length ? `
-  <h2>Staffing Requirements</h2>
+  <h2>Resource Requirements</h2>
   <table>
     <thead><tr><th>Role / Category</th><th style="text-align:center">Required</th><th style="text-align:center">Deployed</th><th style="text-align:center">Status</th></tr></thead>
     <tbody>${reqRows}</tbody>
   </table>
   ` : ''}
 
-  <h2>Personnel Deployment Roster</h2>
+  <h2>Resource Deployment Roster</h2>
   ${allStaff.length ? `
   <table>
-    <thead><tr><th>Staff ID</th><th>Name</th><th>Role</th><th>Contact</th><th>Deployed</th><th>Released</th><th>Status</th></tr></thead>
+    <thead><tr><th>Resource ID</th><th>Name</th><th>Role</th><th>Contact</th><th>Deployed</th><th>Released</th><th>Status</th></tr></thead>
     <tbody>${staffRows}</tbody>
   </table>
-  ` : '<p style="color:#888;font-size:12px;padding:8px 0">No personnel deployed on this project.</p>'}
+  ` : '<p style="color:#888;font-size:12px;padding:8px 0">No resources deployed on this project.</p>'}
 
   <div class="footer">
     <span>DV Events — Confidential Project Report</span>
@@ -3541,7 +3545,7 @@ function renderAssignmentsView() {
         <h2 style="font-size:1.35rem;font-weight:700;color:var(--text-primary)">
           Active Deployments Board
         </h2>
-        <p class="text-muted text-sm">Live on-site personnel with real-time release and reassignment controls.</p>
+        <p class="text-muted text-sm">Live on-site resources with real-time release and reassignment controls.</p>
       </div>
       ${auth.can('edit_assignments') ? `
       <button class="btn btn-primary" onclick="openAssignModal()">
@@ -3554,12 +3558,12 @@ function renderAssignmentsView() {
       <div class="stat-card accent">
         <div class="stat-label">Active Deployments</div>
         <div class="stat-value" style="color:var(--accent)">${activeOnly.length}</div>
-        <div class="stat-sub">Personnel on live sites</div>
+        <div class="stat-sub">Resources on live sites</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Active Sites</div>
         <div class="stat-value">${uniqueSites}</div>
-        <div class="stat-sub">Venues currently staffed</div>
+        <div class="stat-sub">Active project venues</div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Historical Assignments</div>
@@ -3587,7 +3591,7 @@ function renderAssignmentsView() {
             type="text" 
             class="form-control" 
             style="padding:7px 12px 7px 32px;font-size:0.84rem;height:34px" 
-            placeholder="Search worker, site, role..."
+            placeholder="Search resource, site, role..."
             value="${escapeHtml(aFilter.search)}"
             oninput="handleAssignmentSearch(this.value)"
           >
@@ -3601,15 +3605,15 @@ function renderAssignmentsView() {
     <!-- Deployments Table -->
     <div class="card mb-3">
       <div class="card-header">
-        <span class="card-title">${aFilter.tab === 'active' ? 'Active On-Site Personnel' : 'Completed Assignment History'} (${filtered.length})</span>
-        <span class="text-muted text-sm">${aFilter.tab === 'active' ? 'Real-time site personnel' : 'Archived operational records'}</span>
+        <span class="card-title">${aFilter.tab === 'active' ? 'Active On-Site Resources' : 'Completed Assignment History'} (${filtered.length})</span>
+        <span class="text-muted text-sm">${aFilter.tab === 'active' ? 'Real-time site resources' : 'Archived operational records'}</span>
       </div>
       <div class="card-body" style="padding:0">
         <div class="table-wrapper">
           <table class="asgn-table">
             <thead>
               <tr>
-                <th>Worker</th>
+                <th>Resource</th>
                 <th>Category</th>
                 <th>Project / Site</th>
                 <th>${aFilter.tab === 'active' ? 'Deployed Since' : 'Deployment Dates'}</th>
@@ -3632,7 +3636,7 @@ function renderAssignmentsView() {
                       </div>
                     </td>
                     <td>
-                      <span class="res-cat-badge">${escapeHtml(a.category || 'Staff')}</span>
+                      <span class="res-cat-badge">${escapeHtml(a.category || 'Resource')}</span>
                     </td>
                     <td>
                       <div style="display:flex;flex-direction:column;gap:2px">
@@ -3670,7 +3674,7 @@ function renderAssignmentsView() {
                             ` : ''}
                             <button type="button" class="user-dropdown-item" onclick="viewResource(${a.resource_id})">
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-                              <span>View Worker Details</span>
+                              <span>View Resource Details</span>
                             </button>
                             <button type="button" class="user-dropdown-item" onclick="viewProject(${a.project_id})">
                               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg>
@@ -3773,18 +3777,18 @@ async function loadReports() {
         <div class="stat-card accent">
           <div class="stat-label">Utilization Rate</div>
           <div class="stat-value" style="color:var(--accent)">${summary.utilization_rate}%</div>
-          <div class="stat-sub">${summary.assigned} active / ${summary.total_resources} total manpower</div>
+          <div class="stat-sub">${summary.assigned} active / ${summary.total_resources} total resources</div>
           <div style="margin-top:10px">${progressBar(summary.assigned, summary.total_resources)}</div>
         </div>
 
         <div class="stat-card success">
           <div class="stat-label">Available Bench Capacity</div>
           <div class="stat-value" style="color:var(--success)">${summary.available}</div>
-          <div class="stat-sub">Workers ready to deploy</div>
+          <div class="stat-sub">Resources ready to deploy</div>
         </div>
 
         <div class="stat-card warning">
-          <div class="stat-label">Open Staffing Gaps</div>
+          <div class="stat-label">Open Resource Gaps</div>
           <div class="stat-value" style="color:var(--warning)">${summary.total_gaps}</div>
           <div class="stat-sub">Unfilled requirements across projects</div>
         </div>
@@ -3809,7 +3813,7 @@ async function loadReports() {
             </div>
             <div style="flex:1;min-width:min(100%, 280px);max-width:540px">
               <h4 style="font-size:1.05rem;font-weight:600;margin-bottom:6px;color:var(--text-primary)">Category Roster Share</h4>
-              <p class="text-muted text-sm" style="margin-bottom:14px">Distribution of manpower capacity across all event specialties.</p>
+              <p class="text-muted text-sm" style="margin-bottom:14px">Distribution of resource capacity across all event specialties.</p>
               <div class="pie-legend-grid">
                 ${category_utilization.filter(c => c.total > 0).map((c, idx) => {
                   const color = PIE_COLORS[idx % PIE_COLORS.length];
@@ -4023,7 +4027,7 @@ function renderManagersView() {
         <h2 style="font-size:1.35rem;font-weight:700;color:var(--text-primary)">
           Operations Managers & Leadership
         </h2>
-        <p class="text-muted text-sm">Supervisory oversight, team allocation breakdown, and real-time personnel capacity.</p>
+        <p class="text-muted text-sm">Supervisory oversight, team allocation breakdown, and real-time resource capacity.</p>
       </div>
       ${auth.can('edit_managers') ? `
       <button class="btn btn-primary" onclick="openManagerModal()">
@@ -4041,7 +4045,7 @@ function renderManagersView() {
             Team Distribution by Manager
           </div>
           <div class="text-muted text-xs mb-3">
-            Interactive visual representation of supervised workforce share across leadership.
+            Interactive visual representation of supervised resource share across leadership.
           </div>
           <div class="mgr-pie-wrap">
             ${generateManagersPieSVG(managers)}
@@ -4068,7 +4072,7 @@ function renderManagersView() {
                   onmouseenter="handleManagerPieHover(${m.id}, '${escapeHtml(m.name)}', ${count}, '${pct}%', '${color}')" 
                   onmouseleave="handleManagerPieLeave()" 
                   onclick="filterByManagerAndGo(${m.id})"
-                  title="Click to view all staff under ${escapeHtml(m.name)}"
+                  title="Click to view all resources under ${escapeHtml(m.name)}"
                 >
                   <div style="display:flex;align-items:center;gap:10px;min-width:0">
                     <span style="width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0;box-shadow:0 0 6px ${color}66"></span>
@@ -4077,7 +4081,7 @@ function renderManagersView() {
                     </span>
                   </div>
                   <div style="display:flex;align-items:center;gap:12px;font-family:var(--font-mono, monospace)">
-                    <span style="font-size:0.82rem;font-weight:600;color:var(--text-secondary)">${count} staff</span>
+                    <span style="font-size:0.82rem;font-weight:600;color:var(--text-secondary)">${count} resources</span>
                     <span class="badge badge-outline" style="font-size:0.75rem;padding:2px 8px">${pct}%</span>
                   </div>
                 </div>
@@ -4092,7 +4096,7 @@ function renderManagersView() {
       <div style="border-top:1px solid var(--border);padding-top:16px;margin-top:12px">
         <div class="flex justify-between items-center mb-2" style="flex-wrap:wrap;gap:8px">
           <span style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-muted)">
-            Total Supervised Capacity: ${totalSupervised} Personnel
+            Total Supervised Capacity: ${totalSupervised} Resources
           </span>
           <div class="flex gap-3 text-xs">
             <span style="color:var(--success);font-weight:600">● ${totalAvailable} Available (${globalAvailPct}%)</span>
@@ -4156,7 +4160,7 @@ function renderManagersView() {
                   <div class="user-action-dropdown" id="mgr-menu-${m.id}">
                     <button type="button" class="user-dropdown-item" onclick="filterByManagerAndGo(${m.id})">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                      <span>View Managed Staff</span>
+                      <span>View Managed Resources</span>
                     </button>
                     <button type="button" class="user-dropdown-item" onclick="viewManagerTeam(${m.id})">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
@@ -4180,8 +4184,8 @@ function renderManagersView() {
               <!-- Pictorial Capacity Meter -->
               <div class="mgr-capacity-meter mt-3">
                 <div class="mgr-capacity-header">
-                  <span>Workforce Allocation</span>
-                  <strong style="color:var(--text-primary);font-family:var(--font-mono, monospace)">${total} Personnel</strong>
+                  <span>Resource Allocation</span>
+                  <strong style="color:var(--text-primary);font-family:var(--font-mono, monospace)">${total} Resources</strong>
                 </div>
                 <div class="mgr-capacity-bar">
                   <div class="mgr-capacity-seg available" style="width:${availPct}%;background:var(--success)" title="${avail} Available"></div>
@@ -4294,7 +4298,7 @@ function generateManagersPieSVG(managers) {
       <circle cx="110" cy="110" r="${radius}" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="26" />
       ${slices}
       <g class="mgr-donut-center" pointer-events="none" style="text-anchor: middle;">
-        <text id="mgr-donut-subtitle" x="110" y="98" fill="var(--text-muted)" font-size="10" font-weight="600" letter-spacing="0.5">TOTAL WORKFORCE</text>
+        <text id="mgr-donut-subtitle" x="110" y="98" fill="var(--text-muted)" font-size="10" font-weight="600" letter-spacing="0.5">TOTAL RESOURCES</text>
         <text id="mgr-donut-main" x="110" y="122" fill="var(--text-primary)" font-size="20" font-weight="700" font-family="var(--font-mono, monospace)">${totalStaff}</text>
         <text id="mgr-donut-extra" x="110" y="137" fill="var(--text-secondary)" font-size="10">${managers.length} Managers</text>
       </g>
@@ -4309,7 +4313,7 @@ function handleManagerPieHover(mgrId, name, count, pct, color) {
 
   if (subtitle) subtitle.textContent = name.length > 15 ? name.substring(0, 14) + '…' : name;
   if (main) {
-    main.textContent = `${count} Staff`;
+    main.textContent = `${count} Resources`;
     main.style.fill = color;
   }
   if (extra) extra.textContent = `${pct} of team`;
@@ -4345,7 +4349,7 @@ function handleManagerPieLeave() {
   const main     = document.getElementById('mgr-donut-main');
   const extra    = document.getElementById('mgr-donut-extra');
 
-  if (subtitle) subtitle.textContent = 'TOTAL WORKFORCE';
+  if (subtitle) subtitle.textContent = 'TOTAL RESOURCES';
   if (main) {
     main.textContent = `${totalStaff}`;
     main.style.fill = 'var(--text-primary)';
@@ -4411,7 +4415,7 @@ function filterByManagerAndGo(mgrId) {
   state.resourceFilter.category_id = '';
   state.resourceFilter.manager_id = mgrId ? String(mgrId) : '';
   state.resourceFilter.search = '';
-  toast(`Viewing workforce under manager`, 'info');
+  toast(`Viewing resources under manager`, 'info');
   navigate('resources');
 }
 
@@ -4465,7 +4469,7 @@ async function viewManagerTeam(managerId) {
           <div style="display:flex;flex-wrap:wrap;gap:8px">
             ${project_breakdown.map(p => `
               <span class="gap-pill" style="cursor:pointer" onclick="closeModal('detail-modal');viewProject(${p.id})">
-                📍 <strong>${escapeHtml(p.name)}</strong> · ${p.staff_count} personnel
+                📍 <strong>${escapeHtml(p.name)}</strong> · ${p.staff_count} resources
               </span>
             `).join('')}
           </div>
@@ -4479,7 +4483,7 @@ async function viewManagerTeam(managerId) {
           <table class="data-table">
             <thead>
               <tr>
-                <th>Personnel</th>
+                <th>Resource</th>
                 <th>Category</th>
                 <th>Status</th>
                 <th>Current Project</th>
@@ -4495,7 +4499,7 @@ async function viewManagerTeam(managerId) {
                       <strong style="color:var(--text-primary)">${escapeHtml(r.name)}</strong>
                     </div>
                   </td>
-                  <td><span class="badge badge-outline">${escapeHtml(r.category_name || 'Staff')}</span></td>
+                  <td><span class="badge badge-outline">${escapeHtml(r.category_name || 'Resource')}</span></td>
                   <td>${statusBadge(r.status)}</td>
                   <td>${r.current_project_name ? `📍 ${escapeHtml(r.current_project_name)}` : '<span class="text-muted">—</span>'}</td>
                   <td>
@@ -4503,7 +4507,7 @@ async function viewManagerTeam(managerId) {
                   </td>
                 </tr>
               `).join('') : `
-                <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:24px">No personnel currently assigned to this manager.</td></tr>
+                <tr><td colspan="5" style="text-align:center;color:var(--text-muted);padding:24px">No resources currently assigned to this manager.</td></tr>
               `}
             </tbody>
           </table>
@@ -4530,7 +4534,7 @@ async function loadClients() {
           <h2 style="font-size:1.35rem;font-weight:700;color:var(--text-primary)">
             Client Accounts
           </h2>
-          <p class="text-muted text-sm">Organizations contracting DV Events for manpower & security details.</p>
+          <p class="text-muted text-sm">Organizations contracting DV Events for resource & security details.</p>
         </div>
         ${auth.can('edit_clients') ? `<button class="btn btn-primary" onclick="openClientModal()">➕ Add Client</button>` : ''}
       </div>
@@ -4781,7 +4785,7 @@ async function viewResource(id) {
               </tbody>
             </table>
           </div>
-        ` : '<p class="text-sm text-muted" style="margin:0;font-size:0.85rem">No payment records logged for this personnel yet.</p>'}
+        ` : '<p class="text-sm text-muted" style="margin:0;font-size:0.85rem">No payment records logged for this resource yet.</p>'}
       </div>
 
       ${r.notes ? `
@@ -4836,7 +4840,7 @@ async function viewResource(id) {
       </div>` : ''}
     `;
 
-    $('#detail-modal .modal-title').textContent = 'Personnel Profile';
+    $('#detail-modal .modal-title').textContent = 'Resource Profile';
     showModal('detail-modal');
   } catch (err) {
     toast(err.message, 'error');
@@ -4874,8 +4878,8 @@ async function viewProject(id) {
       <!-- Staffing Requirements vs Deployed Progress -->
       <div class="mb-3">
         <div class="flex justify-between items-center mb-1">
-          <div class="text-sm text-muted" style="font-weight:600">STAFFING REQUIREMENTS STATUS</div>
-          ${auth.can('edit_assignments') ? `<button class="btn btn-sm btn-primary" onclick="closeModal('detail-modal');openAssignModal(null, ${p.id})">+ Allocate Staff</button>` : ''}
+          <div class="text-sm text-muted" style="font-weight:600">RESOURCE REQUIREMENTS STATUS</div>
+          ${auth.can('edit_assignments') ? `<button class="btn btn-sm btn-primary" onclick="closeModal('detail-modal');openAssignModal(null, ${p.id})">+ Allocate Resources</button>` : ''}
         </div>
         <div class="table-wrapper" style="border:1px solid var(--border);border-radius:8px">
           <table>
@@ -4889,21 +4893,21 @@ async function viewProject(id) {
                   <td>${r.required}</td>
                   <td><strong style="color:var(--accent)">${r.assigned}</strong></td>
                   <td>
-                    ${r.gap > 0 ? `<span class="gap-badge gap-crit">-${r.gap} needed</span>` : `<span class="gap-badge gap-ok">✔ Staffed</span>`}
+                    ${r.gap > 0 ? `<span class="gap-badge gap-crit">-${r.gap} needed</span>` : `<span class="gap-badge gap-ok">✔ Fulfilled</span>`}
                   </td>
                 </tr>
-              `).join('') : '<tr><td colspan="4" class="text-muted text-sm" style="text-align:center;padding:12px">No specific staffing requirements configured.</td></tr>'}
+              `).join('') : '<tr><td colspan="4" class="text-muted text-sm" style="text-align:center;padding:12px">No specific resource requirements configured.</td></tr>'}
             </tbody>
           </table>
         </div>
       </div>
 
-      <!-- All Project Personnel (Active + Historical) -->
+      <!-- All Project Resources (Active + Historical) -->
       <div class="mb-3">
         <div class="flex justify-between items-center mb-2">
-          <div class="text-sm text-muted" style="font-weight:600">PROJECT PERSONNEL (${allStaff.length} total)</div>
+          <div class="text-sm text-muted" style="font-weight:600">PROJECT RESOURCES (${allStaff.length} total)</div>
           ${auth.can('edit_assignments') && p.status !== 'completed' && p.status !== 'cancelled' ? `
-            <button class="btn btn-sm btn-primary" onclick="closeModal('detail-modal');openAssignModal(null, ${p.id})" style="font-size:0.78rem">+ Allocate Staff</button>
+            <button class="btn btn-sm btn-primary" onclick="closeModal('detail-modal');openAssignModal(null, ${p.id})" style="font-size:0.78rem">+ Allocate Resources</button>
           ` : ''}
         </div>
         ${allStaff.length ? `
@@ -4911,8 +4915,8 @@ async function viewProject(id) {
             <table>
               <thead>
                 <tr>
-                  <th>Staff ID</th>
-                  <th>Personnel</th>
+                  <th>Resource ID</th>
+                  <th>Resource</th>
                   <th>Role</th>
                   <th>Contact</th>
                   <th>Deployed</th>
@@ -4943,7 +4947,7 @@ async function viewProject(id) {
               </tbody>
             </table>
           </div>
-        ` : '<p class="text-sm text-muted" style="padding:12px;background:var(--bg-hover);border-radius:8px">No personnel have been deployed on this project yet.</p>'}
+        ` : '<p class="text-sm text-muted" style="padding:12px;background:var(--bg-hover);border-radius:8px">No resources have been deployed on this project yet.</p>'}
       </div>
     `;
 
@@ -5237,7 +5241,7 @@ function calcTotalProjectRequirements() {
   });
   const badge = $('#pf-total-manpower-badge');
   if (badge) {
-    badge.textContent = `Total Required: ${total} Staff`;
+    badge.textContent = `Total Required: ${total} Resources`;
   }
 }
 
@@ -5289,7 +5293,7 @@ async function openProjectFormPage(id = null, preselectedClientId = null) {
         </button>
         <div>
           <h2 class="user-page-heading-title" style="margin:0 0 4px 0">${isEdit ? `Edit Project — ${escapeHtml(p.name)}` : 'Create New Project'}</h2>
-          <p class="user-page-heading-sub" style="margin:0">${isEdit ? 'Update project parameters, staffing quotas, and client liaison details.' : 'Define event dates, location, POC contact details, and manpower requirements.'}</p>
+          <p class="user-page-heading-sub" style="margin:0">${isEdit ? 'Update project parameters, resource quotas, and client liaison details.' : 'Define event dates, location, POC contact details, and resource requirements.'}</p>
         </div>
       </div>
       <div class="user-page-actions" style="margin-top:2px">
@@ -5387,16 +5391,16 @@ async function openProjectFormPage(id = null, preselectedClientId = null) {
           </div>
         </div>
 
-        <!-- Section 3: Staffing Quotas & Required Resources -->
+        <!-- Section 3: Resource Quotas & Requirements -->
         <div class="project-form-section">
           <div class="project-form-section-head" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
             <div>
-              <h3 class="project-form-section-title">Staffing Requirements &amp; Quotas</h3>
-              <p class="project-form-section-desc">Specify headcount needed per category to track operational staffing deficits.</p>
+              <h3 class="project-form-section-title">Resource Requirements &amp; Quotas</h3>
+              <p class="project-form-section-desc">Specify headcount needed per category to track operational resource deficits.</p>
             </div>
             <div>
               <span class="badge badge-deployed" id="pf-total-manpower-badge" style="font-size:0.85rem;padding:6px 14px;font-weight:700">
-                Total Required: 0 Staff
+                Total Required: 0 Resources
               </span>
             </div>
           </div>
@@ -5634,7 +5638,7 @@ async function loadAvailability() {
     const { data } = await api('/resources/availability');
     content.innerHTML = `
       <div class="mb-3">
-        <h3 style="font-weight:700;margin-bottom:6px">🟢 Live Manpower Availability by Category</h3>
+        <h3 style="font-weight:700;margin-bottom:6px">🟢 Live Resource Availability by Category</h3>
         <p class="text-muted text-sm">Real-time availability calculated from active deployment records.</p>
       </div>
       <div class="category-matrix mb-3">
@@ -5778,15 +5782,10 @@ function navigateToUsersFromPopup() {
 
 function navigateToMyResourcesFromPopup() {
   closeProfilePopup();
-  navigate('resources');
   if (auth.user && auth.user.manager_id) {
-    setTimeout(() => {
-      const mgrSelect = document.getElementById('filter-manager');
-      if (mgrSelect) {
-        mgrSelect.value = auth.user.manager_id;
-        mgrSelect.dispatchEvent(new Event('change'));
-      }
-    }, 120);
+    filterByManagerAndGo(auth.user.manager_id);
+  } else {
+    navigate('resources');
   }
 }
 
@@ -6100,56 +6099,56 @@ const PERMISSIONS_CATALOG = [
     name: 'View Operations Dashboard',
     tag: 'dashboard:view',
     category: 'Operations Dashboard',
-    canDo: 'Access the main Operations Command Center, track real-time KPIs, and review staffing shortage alerts across ongoing events.'
+    canDo: 'Access the main Operations Command Center, track real-time KPIs, and review resource shortage alerts across ongoing events.'
   },
   {
     key: 'view_resources',
-    name: 'View Workforce Directory',
+    name: 'View Resources Directory',
     tag: 'resources:view',
-    category: 'Manpower Operations',
-    canDo: 'Browse personnel records, search workforce skills, view contact numbers, and inspect live deployment states.'
+    category: 'Resource Operations',
+    canDo: 'Browse resource records, search qualification skills, view contact numbers, and inspect live deployment states.'
   },
   {
     key: 'edit_resources',
-    name: 'Register & Edit Personnel',
+    name: 'Register & Edit Resources',
     tag: 'resources:write',
-    category: 'Manpower Operations',
-    canDo: 'Register new personnel, update worker profiles, modify qualification skills and categories, and adjust availability status.'
+    category: 'Resource Operations',
+    canDo: 'Register new resources, update resource profiles, modify qualification skills and categories, and adjust availability status.'
   },
   {
     key: 'view_projects',
     name: 'View Event Projects',
     tag: 'projects:view',
     category: 'Event Projects',
-    canDo: 'Inspect event projects, production schedules, client details, venue locations, and required staffing quotas.'
+    canDo: 'Inspect event projects, production schedules, client details, venue locations, and required resource quotas.'
   },
   {
     key: 'edit_projects',
     name: 'Create & Manage Projects',
     tag: 'projects:write',
     category: 'Event Projects',
-    canDo: 'Create new event productions, update production schedules, set category staffing quotas, and modify project lifecycle states.'
+    canDo: 'Create new event productions, update production schedules, set category resource quotas, and modify project lifecycle states.'
   },
   {
     key: 'view_assignments',
     name: 'View Duty Assignments',
     tag: 'assignments:view',
     category: 'Deployments & Rostering',
-    canDo: 'View live on-site personnel deployments, duty rosters, assignment notes, and operational team allocations.'
+    canDo: 'View live on-site resource deployments, duty rosters, assignment notes, and operational team allocations.'
   },
   {
     key: 'edit_assignments',
-    name: 'Deploy & Reassign Staff',
+    name: 'Deploy & Reassign Resources',
     tag: 'assignments:write',
     category: 'Deployments & Rostering',
-    canDo: 'Assign available personnel from bench to events, reassign staff between projects, and release workers back to bench.'
+    canDo: 'Assign available resources from bench to events, reassign resources between projects, and release resources back to bench.'
   },
   {
     key: 'view_reports',
     name: 'View Analytics & Reports',
     tag: 'reports:view',
     category: 'Reports & Analytics',
-    canDo: 'Access manpower utilization analytics, category distribution charts, deficit history, and export data.'
+    canDo: 'Access resource utilization analytics, category distribution charts, deficit history, and export data.'
   },
   {
     key: 'view_managers',
@@ -6332,7 +6331,7 @@ async function openUserFormPage(userId = null) {
             <option value="lead" ${isLeadUser ? 'selected' : ''}>Lead / Super Admin (Full Access)</option>
           </select>
           <div class="text-muted" style="font-size:0.75rem;margin-top:6px">
-            Lead holds full administrative authority. Manager manages own workforce, view-only on projects &amp; clients.
+            Lead holds full administrative authority. Manager manages own resources, view-only on projects &amp; clients.
           </div>
         </div>
       </div>
@@ -6453,7 +6452,7 @@ async function openUserDetailPage(userId) {
               <span style="font-size:0.88rem;color:var(--text-primary);font-weight:600">Lead / Super Admin</span>
             </div>
             <p style="font-size:0.84rem;color:var(--text-secondary);margin:0;line-height:1.5">
-              This account holds unrestricted administrative and operational authority across all DV Events modules: full workforce management &amp; allocation, project creation &amp; modification, staff nomination approvals, client agreements, supervisor assignments, and platform user security.
+              This account holds unrestricted administrative and operational authority across all DV Events modules: full resource management &amp; allocation, project creation &amp; modification, resource nomination approvals, client agreements, supervisor assignments, and platform user security.
             </p>
           </div>
         ` : `
@@ -6462,10 +6461,10 @@ async function openUserDetailPage(userId) {
               <span class="badge" style="background:rgba(99,102,241,0.12);color:var(--accent);font-weight:700">Operational Access</span>
               <span style="font-size:0.88rem;color:var(--text-primary);font-weight:600">Operations Manager</span>
             </div>
-            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:12px">
+            <div style="grid-template-columns:repeat(auto-fit, minmax(260px, 1fr));gap:12px;display:grid">
               <div style="padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--bg-card)">
-                <div style="font-weight:600;font-size:0.84rem;color:var(--text-primary)">👥 Workforce &amp; Resources</div>
-                <div style="font-size:0.78rem;color:var(--text-muted);margin-top:4px">Full management rights over assigned reporting personnel.</div>
+                <div style="font-weight:600;font-size:0.84rem;color:var(--text-primary)">👥 Resources Directory</div>
+                <div style="font-size:0.78rem;color:var(--text-muted);margin-top:4px">Full management rights over assigned reporting resources.</div>
               </div>
               <div style="padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--bg-card)">
                 <div style="font-weight:600;font-size:0.84rem;color:var(--text-primary)">📋 Projects Directory</div>
@@ -6477,7 +6476,7 @@ async function openUserDetailPage(userId) {
               </div>
               <div style="padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--bg-card)">
                 <div style="font-weight:600;font-size:0.84rem;color:var(--text-primary)">📍 Live GPS Attendance</div>
-                <div style="font-size:0.78rem;color:var(--text-muted);margin-top:4px">Real-time attendance logs and verification for own workforce.</div>
+                <div style="font-size:0.78rem;color:var(--text-muted);margin-top:4px">Real-time attendance logs and verification for own resources.</div>
               </div>
             </div>
           </div>
@@ -6804,17 +6803,23 @@ function initAppListeners() {
   document.addEventListener('click', (e) => {
     const popup = document.getElementById('profile-popup');
     const trigger = document.getElementById('topbar-avatar-btn');
-    if (!popup || popup.style.display === 'none') return;
-    if (!popup.contains(e.target) && (!trigger || !trigger.contains(e.target))) {
-      closeProfilePopup();
+    if (popup && popup.style.display !== 'none') {
+      if (!popup.contains(e.target) && (!trigger || !trigger.contains(e.target))) {
+        closeProfilePopup();
+      }
+    }
+    const bulkWrap = document.querySelector('.bulk-actions-wrap');
+    if (bulkWrap && !bulkWrap.contains(e.target)) {
+      closeBulkActionsMenu();
     }
   });
 
-  // Close profile popup & sidebar drawer on Escape key
+  // Close profile popup, sidebar drawer & bulk actions menu on Escape key
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       closeProfilePopup();
       closeSidebarDrawer();
+      closeBulkActionsMenu();
     }
   });
 
@@ -7338,7 +7343,7 @@ function renderResourceImportPage() {
               Bulk Import Resources
             </h2>
             <p class="text-muted text-sm" style="margin:0">
-              Onboard manpower at scale via Excel (.xlsx, .xls) or CSV files, with automatic Google Drive photo conversion.
+              Onboard resources at scale via Excel (.xlsx, .xls) or CSV files, with automatic Google Drive photo conversion.
             </p>
           </div>
         </div>
@@ -8018,7 +8023,7 @@ function renderImportStep3() {
             </h3>
           </div>
           <p class="text-muted text-sm" style="margin:0">
-            Review parsed personnel records before onboarding into your manpower pool.
+            Review parsed resource records before onboarding into your resource pool.
           </p>
         </div>
       </div>
@@ -8240,7 +8245,7 @@ function renderImportStep4() {
         Import Successful!
       </h3>
       <p class="text-muted" style="margin-bottom:24px">
-        Successfully onboarded <strong style="color:#10b981">${importedCount} resources</strong> into the DV Events organization manpower pool.
+        Successfully onboarded <strong style="color:#10b981">${importedCount} resources</strong> into the DV Events organization resource pool.
         ${skippedCount ? `<br><span class="text-xs" style="color:var(--text-muted)">(${skippedCount} invalid rows with missing names were skipped)</span>` : ''}
       </p>
 

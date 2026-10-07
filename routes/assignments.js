@@ -42,6 +42,7 @@ router.post('/bulk-assign', requirePermission('edit_assignments'), async (req, r
   const conn = await pool.getConnection();
   try {
     const { project_id, resource_ids, assigned_by, notes } = req.body;
+    const effectiveAssignedBy = req.user?.manager_id || assigned_by || null;
     if (!project_id || !Array.isArray(resource_ids) || !resource_ids.length) {
       return res.status(400).json({ success: false, error: 'project_id and resource_ids array are required' });
     }
@@ -85,7 +86,7 @@ router.post('/bulk-assign', requirePermission('edit_assignments'), async (req, r
       // Create new assignment
       await conn.query(
         `INSERT INTO project_assignments (project_id, resource_id, assigned_by, notes) VALUES (?, ?, ?, ?)`,
-        [project_id, rId, assigned_by || null, notes || `Bulk deployed to ${project[0].name}`]
+        [project_id, rId, effectiveAssignedBy, notes || `Bulk deployed to ${project[0].name}`]
       );
 
       // Update resource status
@@ -98,7 +99,7 @@ router.post('/bulk-assign', requirePermission('edit_assignments'), async (req, r
       // Log availability
       await conn.query(
         `INSERT INTO availability_log (resource_id, old_status, new_status, changed_by, notes) VALUES (?, ?, 'deployed', ?, ?)`,
-        [rId, oldStatus, assigned_by || null, notes || `Bulk deployed to ${project[0].name}`]
+        [rId, oldStatus, effectiveAssignedBy, notes || `Bulk deployed to ${project[0].name}`]
       );
 
       assigned.push({ id: rId, name: r.name });
